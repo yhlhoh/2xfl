@@ -50,3 +50,7 @@ scripts/__pycache__/
 
 # Spec workflow local artifacts
 .spec-workflow/
+
+# BMad Method V6
+_bmad/
+_bmad-output/
