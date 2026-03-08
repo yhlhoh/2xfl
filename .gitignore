@@ -54,3 +54,6 @@ scripts/__pycache__/
 # BMad Method V6
 _bmad/
 _bmad-output/
+
+# Playwright MCP
+.playwright-mcp/
