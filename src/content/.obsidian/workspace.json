@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "posts/coxp.md",
+                "file": "posts/eo-cf.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "coxp"
+              "title": "eo-cf"
             }
           }
         ],
@@ -186,7 +186,10 @@
   },
   "active": "ee215ba144416f8f",
   "lastOpenFiles": [
+    "posts/email-privacy.md",
+    "posts/eo-cf.md",
     "posts/random-url-gen.md",
+    "posts/privacy-policy.md",
     "posts/coxp.md",
     "posts/fisco.md",
     "posts/fisco-offline.md",
@@ -224,9 +227,6 @@
     "posts/post-diff-guide.md",
     "posts/domain-email.md",
     "posts/cf-fastip.md",
-    "posts/auto-pr-link.md",
-    "posts/avatar.md",
-    "posts/alist-for-aliyun.md",
     "posts copy",
     "posts/posts.zip",
     "posts/watermark.zip",
