@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Icon from "@iconify/svelte";
 	import type { ForumPostSummary } from "@/forum/types/post";
+	import { formatForumDateTime } from "@/utils/date-utils";
 
 	export let posts: ForumPostSummary[] | null | undefined = [];
 	export let loading = false;
@@ -8,10 +9,6 @@
 
 	$: safePosts = Array.isArray(posts) ? posts : [];
 
-	function formatDate(value?: string) {
-		if (!value) return "刚刚";
-		return new Date(value).toLocaleString("zh-CN");
-	}
 </script>
 
 <div class="space-y-4">
@@ -66,7 +63,7 @@
 					{/if}
 					<div class="min-w-0">
 						<div class="truncate font-medium text-white/80">{post.author?.displayName || post.author?.username || "匿名用户"}</div>
-						<div class="text-xs text-white/35">{formatDate(post.updatedAt || post.createdAt)}</div>
+						<div class="text-xs text-white/35">{formatForumDateTime(post.updatedAt || post.createdAt)}</div>
 					</div>
 				</div>
 				<div class="flex flex-wrap items-center gap-4 text-xs text-white/40">

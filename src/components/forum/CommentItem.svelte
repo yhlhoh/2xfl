@@ -2,6 +2,7 @@
 	import Icon from "@iconify/svelte";
 	import ForumMarkdownContent from "@/components/forum/ForumMarkdownContent.svelte";
 	import { deleteComment, likeComment } from "@/forum/api/comments";
+	import { formatForumDateTime } from "@/utils/date-utils";
 	import type { ForumComment } from "@/forum/types/comment";
 	import type { ForumUser } from "@/forum/types/user";
 
@@ -16,11 +17,6 @@
 	export let onCommentPatched: (commentId: string, patch: Partial<ForumComment>) => void;
 	export let currentUser: ForumUser | null = null;
 	export let onCommentDeleted: () => void = () => {};
-
-	function formatDate(value?: string) {
-		if (!value) return "刚刚";
-		return new Date(value).toLocaleString("zh-CN");
-	}
 
 	function indentClass(level: number) {
 		return level > 0 ? "ml-4 border-l border-white/8 pl-4 md:ml-6 md:pl-5" : "";
@@ -91,7 +87,7 @@
 				{/if}
 				<div>
 					<div class="text-sm font-medium text-white/75">{comment.author?.displayName || comment.author?.username || "匿名用户"}</div>
-					<div class="text-xs text-white/35">{formatDate(comment.updatedAt || comment.createdAt)}</div>
+					<div class="text-xs text-white/35">{formatForumDateTime(comment.updatedAt || comment.createdAt)}</div>
 				</div>
 			</div>
 			{#if comment.isPinned}

@@ -44,7 +44,7 @@ export function parsePostDateToDate(value: unknown): Date {
 	if (typeof value !== "string") return new Date(String(value));
 
 	const s = value.trim();
-	const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+	const dateOnly = /^(\d{4})[-/](\d{2})[-/](\d{2})$/.exec(s);
 	if (dateOnly) {
 		const y = Number(dateOnly[1]);
 		const m = Number(dateOnly[2]);
@@ -53,7 +53,7 @@ export function parsePostDateToDate(value: unknown): Date {
 	}
 
 	const localNoZone =
-		/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(s);
+		/^(\d{4})[-/](\d{2})[-/](\d{2})[T\s](\d{2}):(\d{2})(?::(\d{2}))?$/.exec(s);
 	if (localNoZone) {
 		const y = Number(localNoZone[1]);
 		const m = Number(localNoZone[2]);
@@ -61,8 +61,28 @@ export function parsePostDateToDate(value: unknown): Date {
 		const hh = Number(localNoZone[4]);
 		const mm = Number(localNoZone[5]);
 		const ss = Number(localNoZone[6] ?? "0");
-		return new Date(Date.UTC(y, m - 1, d, hh - 8, mm, ss));
+		return new Date(Date.UTC(y, m - 1, d, hh, mm, ss));
 	}
 
 	return new Date(s);
+}
+
+export function formatForumDateTime(value?: string): string {
+	if (!value) return "刚刚";
+
+	const date = parsePostDateToDate(value);
+	if (Number.isNaN(date.getTime())) {
+		return "刚刚";
+	}
+
+	return new Intl.DateTimeFormat("zh-CN", {
+		timeZone: "Asia/Shanghai",
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		minute: "2-digit",
+		second: "2-digit",
+		hour12: false,
+	}).format(date);
 }

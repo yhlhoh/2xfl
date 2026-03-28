@@ -14,6 +14,7 @@
 	import type { ForumPostDetail } from "@/forum/types/post";
 	import type { ForumUser } from "@/forum/types/user";
 	import { renderForumMarkdown } from "@/forum/utils/markdown";
+	import { formatForumDateTime } from "@/utils/date-utils";
 
 	export let postId = "";
 
@@ -38,11 +39,6 @@
 		{ value: "latest", label: "最新" },
 	] as const;
 	let commentSort = "hot";
-
-	function formatDate(value?: string) {
-		if (!value) return "刚刚";
-		return new Date(value).toLocaleString("zh-CN");
-	}
 
 	function refreshCommentCount() {
 		if (!post) return;
@@ -288,7 +284,7 @@
 							{/if}
 							<span>{post.author?.displayName || post.author?.username || "匿名用户"}</span>
 						</div>
-						<span>{formatDate(post.updatedAt || post.createdAt)}</span>
+						<span>{formatForumDateTime(post.updatedAt || post.createdAt)}</span>
 					</div>
 					<div class="flex flex-wrap gap-3">
 						<a href="/forum/" class="rounded-xl border border-white/10 px-4 py-2 text-sm font-bold text-white/60">返回论坛首页</a>
