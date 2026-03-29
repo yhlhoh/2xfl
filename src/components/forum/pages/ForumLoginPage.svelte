@@ -62,7 +62,6 @@
 		</div>
 		<div class="flex flex-wrap gap-3">
 			<a href="/forum/" class="rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white/60">返回论坛首页</a>
-			<a href="/forum/auth/register/" class="rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white/70">注册账号</a>
 		</div>
 	</div>
 
@@ -73,12 +72,10 @@
 		{#if turnstileEnabled}
 			<div class="rounded-xl border border-dashed border-white/10 bg-white/5 px-4 py-3 text-sm text-white/45">当前论坛配置已启用 Turnstile，后续可在此挂载验证码组件。</div>
 		{/if}
-		<div class="flex items-center gap-3">
+		<div class="flex flex-wrap items-center gap-x-4 gap-y-2">
 			<button class="rounded-xl bg-[var(--primary)] px-5 py-3 font-bold text-black/80 disabled:opacity-60" disabled={loading} on:click={submit}>登录</button>
+			<a href="/forum/auth/forgot-password/" class="text-sm text-[var(--primary)]">忘记密码？</a>
 			<a href="/forum/auth/register/" class="text-sm text-[var(--primary)]">没有账号？去注册</a>
-		</div>
-		<div class="text-sm">
-			<a href="/forum/auth/forgot-password/" class="text-[var(--primary)]">忘记密码？</a>
 		</div>
 		{#if status}
 			<p class="text-sm text-white/55">{status}</p>
