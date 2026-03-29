@@ -54,7 +54,7 @@
 			<span class="text-xs break-all text-white/40">当前：{currentBaseUrl}</span>
 		</div>
 		<div class="flex flex-col gap-2 md:flex-row md:items-center">
-			<input bind:value={customBaseUrl} class="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-white outline-none focus:border-[var(--primary)]" placeholder="手动输入论坛 API baseURL，例如 http://127.0.0.1:8788" />
+			<input bind:value={customBaseUrl} class="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-white outline-none focus:border-[var(--primary)]" placeholder="手动输入论坛 API baseURL，例如 http://127.0.0.1:8787" />
 			<div class="flex gap-2">
 				<button class="rounded-xl border border-white/10 px-4 py-2 font-bold text-white/75" on:click={applyCustomBaseUrl}>应用</button>
 				<button class="rounded-xl border border-white/10 px-4 py-2 font-bold text-white/55" on:click={resetBaseUrl}>重置</button>

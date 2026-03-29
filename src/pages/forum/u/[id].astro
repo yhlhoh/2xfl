@@ -1,0 +1,16 @@
+---
+import ForumUserPage from "@/components/forum/pages/ForumUserPage.svelte";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+
+export function getStaticPaths() {
+	return Array.from({ length: 500 }, (_, index) => ({
+		params: { id: String(index + 1) },
+	}));
+}
+
+const userId = Astro.params.id || "";
+---
+
+<MainGridLayout title="用户主页" description="查看论坛公开用户资料与其发布的帖子。">
+	<ForumUserPage client:only="svelte" userId={userId} />
+</MainGridLayout>

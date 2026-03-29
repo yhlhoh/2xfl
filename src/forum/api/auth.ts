@@ -1,6 +1,13 @@
 import type { RegisterResult, SessionResult } from "@/forum/types/api";
-import type { ForumUser, ForgotPasswordPayload, LoginPayload, RegisterPayload, ResetPasswordPayload } from "@/forum/types/user";
+import type { ForumUser, ForumUserGender, ForgotPasswordPayload, LoginPayload, RegisterPayload, ResetPasswordPayload } from "@/forum/types/user";
 import { forumRequest } from "./client";
+
+export interface ForumProfilePayload {
+	gender?: ForumUserGender | null;
+	bio?: string | null;
+	age?: number | null;
+	region?: string | null;
+}
 
 interface RawSessionUser {
 	id: string | number;
@@ -11,6 +18,9 @@ interface RawSessionUser {
 	avatar_url?: string | null;
 	avatarUrl?: string | null;
 	bio?: string | null;
+	gender?: string | null;
+	age?: number | string | null;
+	region?: string | null;
 	role?: string | number;
 	is_admin?: boolean | number;
 	isAdmin?: boolean | number;
@@ -39,6 +49,9 @@ interface RawSessionResult {
 	avatar_url?: string | null;
 	avatarUrl?: string | null;
 	bio?: string | null;
+	gender?: string | null;
+	age?: number | string | null;
+	region?: string | null;
 	role?: string | number;
 	is_admin?: boolean | number;
 	isAdmin?: boolean | number;
@@ -161,6 +174,35 @@ function toOptionalBoolean(value: unknown): boolean | undefined {
 	return undefined;
 }
 
+function toOptionalNumber(value: unknown): number | undefined {
+	if (value === undefined || value === null || value === "") {
+		return undefined;
+	}
+	if (typeof value === "number") {
+		return Number.isFinite(value) ? value : undefined;
+	}
+	if (typeof value === "string") {
+		const normalized = value.trim();
+		if (!normalized) {
+			return undefined;
+		}
+		const parsed = Number(normalized);
+		return Number.isFinite(parsed) ? parsed : undefined;
+	}
+	return undefined;
+}
+
+function normalizeGender(value: unknown): ForumUserGender | undefined {
+	if (typeof value !== "string") {
+		return undefined;
+	}
+	const normalized = value.trim();
+	if (["male", "female", "other", "prefer_not_to_say"].includes(normalized)) {
+		return normalized as ForumUserGender;
+	}
+	return undefined;
+}
+
 function normalizeUser(user?: RawSessionUser | null): ForumUser | null {
 	if (!user) {
 		return null;
@@ -173,6 +215,9 @@ function normalizeUser(user?: RawSessionUser | null): ForumUser | null {
 		displayName: user.display_name || user.displayName || user.username,
 		avatarUrl: user.avatar_url || user.avatarUrl || undefined,
 		bio: user.bio?.trim() || undefined,
+		gender: normalizeGender(user.gender),
+		age: toOptionalNumber(user.age),
+		region: user.region?.trim() || undefined,
 		role: normalizeRole(user),
 		createdAt: user.created_at || user.createdAt,
 		emailNotifications: user.email_notifications ?? user.emailNotifications,
@@ -194,6 +239,9 @@ function resolveSessionUser(result: RawSessionResult) {
 			displayName: result.displayName,
 			avatar_url: result.avatar_url,
 			bio: result.bio,
+			gender: result.gender,
+			age: result.age,
+			region: result.region,
 			avatarUrl: result.avatarUrl,
 			role: result.role,
 			is_admin: result.is_admin,
@@ -280,6 +328,24 @@ export async function updateProfile(payload: ProfilePayload) {
 			username: payload.username,
 			avatar_url: payload.avatarUrl,
 			email_notifications: payload.emailNotifications,
+		},
+	});
+	const resolvedUser = result.data?.user ?? result.user ?? resolveSessionUser(result);
+	if (!resolvedUser && (result.success !== undefined || result.message)) {
+		return null;
+	}
+	return normalizeUser(resolvedUser);
+}
+
+export async function updateMyProfile(payload: ForumProfilePayload) {
+	const result = await forumRequest<RawProfileResult>("/api/user/me/profile", {
+		method: "POST",
+		requiresAuth: true,
+		json: {
+			gender: payload.gender,
+			bio: payload.bio,
+			age: payload.age,
+			region: payload.region,
 		},
 	});
 	const resolvedUser = result.data?.user ?? result.user ?? resolveSessionUser(result);

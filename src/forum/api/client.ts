@@ -10,8 +10,7 @@ export interface ForumRequestOptions extends RequestInit {
 	json?: unknown;
 }
 
-function buildUrl(path: string, query?: ForumRequestOptions["query"]) {
-	const baseUrl = get(forumEnv.baseUrl);
+function buildUrl(path: string, query?: ForumRequestOptions["query"], baseUrl = get(forumEnv.baseUrl)) {
 	const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 	const url = new URL(normalizedPath, baseUrl);
 
@@ -42,7 +41,9 @@ export async function forumRequest<T>(path: string, options: ForumRequestOptions
 	const headers = new Headers(options.headers);
 	const method = (options.method || "GET").toUpperCase();
 	const token = forumAuth.getToken();
+	const currentEnv = get(forumEnv);
 	const baseUrl = get(forumEnv.baseUrl);
+	const defaultBaseUrl = forumEnv.getBaseUrl(currentEnv);
 
 	if (options.requiresAuth && !token) {
 		throw new ForumApiError(401, {
@@ -65,12 +66,31 @@ export async function forumRequest<T>(path: string, options: ForumRequestOptions
 		headers.set("Authorization", `Bearer ${token}`);
 	}
 
-	const response = await fetch(buildUrl(path, options.query), {
+	const requestInit: RequestInit = {
 		...options,
 		method,
 		headers,
 		body: options.json !== undefined ? JSON.stringify(options.json) : options.body,
-	});
+	};
+
+	let response: Response;
+	try {
+		response = await fetch(buildUrl(path, options.query, baseUrl), requestInit);
+	} catch (error) {
+		if (method === "GET" && baseUrl !== defaultBaseUrl) {
+			try {
+				response = await fetch(buildUrl(path, options.query, defaultBaseUrl), requestInit);
+				forumEnv.customBaseUrl.reset(currentEnv);
+				return parseResponse<T>(response);
+			} catch {
+				// ignore fallback failure and throw original-style unreachable error below
+			}
+		}
+		throw new ForumApiError(503, {
+			code: "FORUM_API_UNREACHABLE",
+			message: error instanceof Error ? `论坛接口不可访问：${error.message}` : "论坛接口不可访问，请检查环境地址配置。",
+		});
+	}
 
 	return parseResponse<T>(response);
 }

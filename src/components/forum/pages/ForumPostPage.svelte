@@ -22,6 +22,8 @@
 	let comments: ForumComment[] = [];
 	let loading = true;
 	let commentsLoading = true;
+	let loadErrorKind: "not-found" | "unreachable" | "unknown" | null = null;
+	let loadErrorMessage = "";
 	let likeBusy = false;
 	let commentSubmitting = false;
 	let replySubmitting = false;
@@ -71,6 +73,8 @@
 
 	async function loadPost() {
 		loading = true;
+		loadErrorKind = null;
+		loadErrorMessage = "";
 		try {
 			const result = await getPost(postId);
 			post = {
@@ -85,6 +89,18 @@
 		} catch (error) {
 			console.error(error);
 			post = null;
+			if (error instanceof ForumApiError) {
+				if (error.status === 404) {
+					loadErrorKind = "not-found";
+					loadErrorMessage = error.message || "帖子不存在。";
+				} else {
+					loadErrorKind = "unreachable";
+					loadErrorMessage = error.message || "论坛接口当前不可访问，请检查论坛环境配置。";
+				}
+			} else {
+				loadErrorKind = "unknown";
+				loadErrorMessage = error instanceof Error ? error.message : "帖子加载失败，请稍后重试。";
+			}
 		} finally {
 			loading = false;
 		}
@@ -202,6 +218,13 @@
 		return ["admin", "administrator", "root", "superadmin", "super_admin"].includes(normalizedRole) ? "admin" : normalizedRole;
 	}
 
+	function goToUser(userId?: string) {
+		if (!userId) {
+			return;
+		}
+		window.location.href = `/forum/u/${encodeURIComponent(userId)}/`;
+	}
+
 	function isCurrentUserAdmin(user: ForumUser | null) {
 		return normalizeRole(user?.role) === "admin";
 	}
@@ -260,7 +283,18 @@
 {#if loading}
 	<div class="card-base p-6 text-white/50">正在加载帖子详情...</div>
 {:else if !post}
-	<div class="card-base p-6 text-white/50">帖子不存在或当前环境不可访问。</div>
+	<div class="card-base p-6 text-white/50 space-y-2">
+		{#if loadErrorKind === "not-found"}
+			<p>帖子不存在。</p>
+		{:else if loadErrorKind === "unreachable"}
+			<p>论坛接口当前不可访问或环境地址错误。</p>
+		{:else}
+			<p>帖子加载失败。</p>
+		{/if}
+		{#if loadErrorMessage}
+			<p class="text-sm text-white/35">{loadErrorMessage}</p>
+		{/if}
+	</div>
 {:else}
 	<div class="space-y-5">
 		<article class="card-base border border-white/10 p-6 md:p-8">
@@ -275,14 +309,27 @@
 						{/if}
 						<span class="rounded-full bg-white/8 px-3 py-1 text-[var(--primary)]">{post.category?.name || "未分类"}</span>
 						<div class="flex items-center gap-2">
-							{#if post.author?.avatarUrl}
-								<img src={post.author.avatarUrl} alt={post.author.displayName || post.author.username || "用户头像"} class="h-8 w-8 rounded-full object-cover" loading="lazy" referrerpolicy="no-referrer" />
+							{#if post.authorId}
+								<button class="flex items-center gap-2 rounded-xl text-left transition hover:text-[var(--primary)]" type="button" on:click={() => goToUser(post.authorId)}>
+									{#if post.author?.avatarUrl}
+										<img src={post.author.avatarUrl} alt={post.author.displayName || post.author.username || "用户头像"} class="h-8 w-8 rounded-full object-cover" loading="lazy" referrerpolicy="no-referrer" />
+									{:else}
+										<span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/8 text-white/45">
+											<Icon icon="material-symbols:person-outline-rounded" />
+										</span>
+									{/if}
+									<span>{post.author?.displayName || post.author?.username || "匿名用户"}</span>
+								</button>
 							{:else}
-								<span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/8 text-white/45">
-									<Icon icon="material-symbols:person-outline-rounded" />
-								</span>
+								{#if post.author?.avatarUrl}
+									<img src={post.author.avatarUrl} alt={post.author.displayName || post.author.username || "用户头像"} class="h-8 w-8 rounded-full object-cover" loading="lazy" referrerpolicy="no-referrer" />
+								{:else}
+									<span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/8 text-white/45">
+										<Icon icon="material-symbols:person-outline-rounded" />
+									</span>
+								{/if}
+								<span>{post.author?.displayName || post.author?.username || "匿名用户"}</span>
 							{/if}
-							<span>{post.author?.displayName || post.author?.username || "匿名用户"}</span>
 						</div>
 						<span>{formatForumDateTime(post.updatedAt || post.createdAt)}</span>
 					</div>
@@ -346,7 +393,7 @@
 					</div>
 				{:else}
 					<div class="rounded-2xl border border-dashed border-white/10 bg-white/3 px-4 py-5 text-sm text-white/50">
-						请先<a href="/forum/login/" class="mx-1 text-[var(--primary)] underline decoration-dashed underline-offset-4">登录论坛</a>后再发表评论或回复。
+						请先<a href="/forum/auth/login/" class="mx-1 text-[var(--primary)] underline decoration-dashed underline-offset-4">登录论坛</a>后再发表评论或回复。
 					</div>
 				{/if}
 			</div>

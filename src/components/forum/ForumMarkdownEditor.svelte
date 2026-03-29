@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher, onDestroy, onMount } from "svelte";
-	import Editor from "@toast-ui/editor";
+	import type Editor from "@toast-ui/editor";
 	import { ForumApiError } from "@/forum/types/api";
 	import { uploadFile, type ForumUploadType } from "@/forum/api/auth";
 	import { compressPostImage, isPostImageWithinLimit, POST_IMAGE_MAX_BYTES } from "@/forum/utils/image-compression";
@@ -135,48 +135,61 @@
 	}
 
 	onMount(() => {
-		editor = new Editor({
-			el: containerEl,
-			height: `${minHeight}px`,
-			initialEditType: "markdown",
-			previewStyle: "vertical",
-			initialValue: value,
-			placeholder,
-			theme: "dark",
-			usageStatistics: false,
-			hideModeSwitch: true,
-			toolbarItems: toolbarMap[mode],
-			useCommandShortcut: true,
-			hooks: {
-				addImageBlobHook: async (blob: Blob | File, callback: (url: string, text?: string) => void) => {
-					await handleImageUpload(blob, callback);
-					return false;
-				},
-			},
-		});
+		let disposed = false;
 
-		editor.on("change", () => {
-			syncValue(editor?.getMarkdown() || "");
-			updatePreviewClasses();
-		});
-
-		const keydownHandler = (event: KeyboardEvent) => {
-			if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
-				event.preventDefault();
-				dispatch("submit");
+		void (async () => {
+			const { default: Editor } = await import("@toast-ui/editor");
+			if (disposed) {
 				return;
 			}
 
-			if (event.key === "Escape") {
-				dispatch("escape");
-			}
+			editor = new Editor({
+				el: containerEl,
+				height: `${minHeight}px`,
+				initialEditType: "markdown",
+				previewStyle: "vertical",
+				initialValue: value,
+				placeholder,
+				theme: "dark",
+				usageStatistics: false,
+				hideModeSwitch: true,
+				toolbarItems: toolbarMap[mode],
+				useCommandShortcut: true,
+				hooks: {
+					addImageBlobHook: async (blob: Blob | File, callback: (url: string, text?: string) => void) => {
+						await handleImageUpload(blob, callback);
+						return false;
+					},
+				},
+			});
+
+			editor.on("change", () => {
+				syncValue(editor?.getMarkdown() || "");
+				updatePreviewClasses();
+			});
+
+			const keydownHandler = (event: KeyboardEvent) => {
+				if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+					event.preventDefault();
+					dispatch("submit");
+					return;
+				}
+
+				if (event.key === "Escape") {
+					dispatch("escape");
+				}
+			};
+
+			containerEl.addEventListener("keydown", keydownHandler);
+			keydownCleanup = () => containerEl.removeEventListener("keydown", keydownHandler);
+
+			updatePreviewClasses();
+			setDisabledState(disabled || submitting);
+		})();
+
+		return () => {
+			disposed = true;
 		};
-
-		containerEl.addEventListener("keydown", keydownHandler);
-		keydownCleanup = () => containerEl.removeEventListener("keydown", keydownHandler);
-
-		updatePreviewClasses();
-		setDisabledState(disabled || submitting);
 	});
 
 	onDestroy(() => {

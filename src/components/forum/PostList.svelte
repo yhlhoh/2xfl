@@ -9,6 +9,17 @@
 
 	$: safePosts = Array.isArray(posts) ? posts : [];
 
+	function goToPost(postId: string) {
+		window.location.href = `/forum/post/?id=${encodeURIComponent(postId)}`;
+	}
+
+	function goToUser(userId?: string, event?: MouseEvent | KeyboardEvent) {
+		event?.stopPropagation();
+		if (!userId) {
+			return;
+		}
+		window.location.href = `/forum/u/${encodeURIComponent(userId)}/`;
+	}
 </script>
 
 <div class="space-y-4">
@@ -21,7 +32,7 @@
 		<div class="card-base p-5 text-white/50">{emptyText}</div>
 	{:else}
 		{#each safePosts as post}
-			<a href={`/forum/post/?id=${encodeURIComponent(post.id)}`} class="group card-base card-hover block w-full p-5 text-white/90 no-underline">
+			<div class="group card-base card-hover block w-full cursor-pointer p-5 text-white/90 no-underline" role="link" tabindex="0" on:click={() => goToPost(post.id)} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && goToPost(post.id)}>
 				<div class="mb-4 flex items-start justify-between gap-4">
 					<div class="min-w-0 flex-1">
 						<div class="mb-2 flex flex-wrap items-center gap-2">
@@ -54,24 +65,40 @@
 					</div>
 				{/if}
 				<div class="mb-4 flex items-center gap-3 text-sm text-white/65">
-					{#if post.author?.avatarUrl}
-						<img src={post.author.avatarUrl} alt={post.author.displayName || post.author.username || "用户头像"} class="h-9 w-9 rounded-full object-cover" loading="lazy" referrerpolicy="no-referrer" />
+					{#if post.authorId}
+						<button class="flex items-center gap-3 rounded-xl text-left transition hover:text-[var(--primary)]" type="button" on:click={(event) => goToUser(post.authorId, event)}>
+							{#if post.author?.avatarUrl}
+								<img src={post.author.avatarUrl} alt={post.author.displayName || post.author.username || "用户头像"} class="h-9 w-9 rounded-full object-cover" loading="lazy" referrerpolicy="no-referrer" />
+							{:else}
+								<span class="flex h-9 w-9 items-center justify-center rounded-full bg-white/8 text-white/45">
+									<Icon icon="material-symbols:person-outline-rounded" />
+								</span>
+							{/if}
+							<div class="min-w-0">
+								<div class="truncate font-medium text-white/80">{post.author?.displayName || post.author?.username || "匿名用户"}</div>
+								<div class="text-xs text-white/35">{formatForumDateTime(post.updatedAt || post.createdAt)}</div>
+							</div>
+						</button>
 					{:else}
-						<span class="flex h-9 w-9 items-center justify-center rounded-full bg-white/8 text-white/45">
-							<Icon icon="material-symbols:person-outline-rounded" />
-						</span>
+						{#if post.author?.avatarUrl}
+							<img src={post.author.avatarUrl} alt={post.author.displayName || post.author.username || "用户头像"} class="h-9 w-9 rounded-full object-cover" loading="lazy" referrerpolicy="no-referrer" />
+						{:else}
+							<span class="flex h-9 w-9 items-center justify-center rounded-full bg-white/8 text-white/45">
+								<Icon icon="material-symbols:person-outline-rounded" />
+							</span>
+						{/if}
+						<div class="min-w-0">
+							<div class="truncate font-medium text-white/80">{post.author?.displayName || post.author?.username || "匿名用户"}</div>
+							<div class="text-xs text-white/35">{formatForumDateTime(post.updatedAt || post.createdAt)}</div>
+						</div>
 					{/if}
-					<div class="min-w-0">
-						<div class="truncate font-medium text-white/80">{post.author?.displayName || post.author?.username || "匿名用户"}</div>
-						<div class="text-xs text-white/35">{formatForumDateTime(post.updatedAt || post.createdAt)}</div>
-					</div>
 				</div>
 				<div class="flex flex-wrap items-center gap-4 text-xs text-white/40">
 					<span class="flex items-center gap-1"><Icon icon="material-symbols:visibility-outline-rounded" />{post.viewCount || 0}</span>
 					<span class="flex items-center gap-1"><Icon icon="material-symbols:chat-bubble-outline-rounded" />{post.commentCount || 0}</span>
 					<span class="flex items-center gap-1"><Icon icon="material-symbols:favorite-outline-rounded" />{post.likeCount || 0}</span>
 				</div>
-			</a>
+			</div>
 		{/each}
 	{/if}
 </div>

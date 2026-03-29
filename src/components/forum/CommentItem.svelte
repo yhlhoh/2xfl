@@ -25,6 +25,13 @@
 	let likeBusy = false;
 	let deleteBusy = false;
 
+	function goToUser(userId?: string) {
+		if (!userId) {
+			return;
+		}
+		window.location.href = `/forum/u/${encodeURIComponent(userId)}/`;
+	}
+
 	function normalizeRole(role?: string) {
 		if (!role) {
 			return "";
@@ -78,17 +85,33 @@
 	<div class="card-base border border-white/10 p-4">
 		<div class="mb-3 flex items-start justify-between gap-3">
 			<div class="flex items-center gap-3">
-				{#if comment.author?.avatarUrl}
-					<img src={comment.author.avatarUrl} alt={comment.author.displayName || comment.author.username || "用户头像"} class="h-9 w-9 rounded-full object-cover" loading="lazy" referrerpolicy="no-referrer" />
+				{#if comment.author?.id}
+					<button class="flex items-center gap-3 rounded-xl text-left transition hover:text-[var(--primary)]" type="button" on:click={() => goToUser(comment.author?.id)}>
+						{#if comment.author?.avatarUrl}
+							<img src={comment.author.avatarUrl} alt={comment.author.displayName || comment.author.username || "用户头像"} class="h-9 w-9 rounded-full object-cover" loading="lazy" referrerpolicy="no-referrer" />
+						{:else}
+							<span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/8 text-white/45">
+								<Icon icon="material-symbols:person-outline-rounded" />
+							</span>
+						{/if}
+						<div>
+							<div class="text-sm font-medium text-white/75">{comment.author?.displayName || comment.author?.username || "匿名用户"}</div>
+							<div class="text-xs text-white/35">{formatForumDateTime(comment.updatedAt || comment.createdAt)}</div>
+						</div>
+					</button>
 				{:else}
-					<span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/8 text-white/45">
-						<Icon icon="material-symbols:person-outline-rounded" />
-					</span>
+					{#if comment.author?.avatarUrl}
+						<img src={comment.author.avatarUrl} alt={comment.author.displayName || comment.author.username || "用户头像"} class="h-9 w-9 rounded-full object-cover" loading="lazy" referrerpolicy="no-referrer" />
+					{:else}
+						<span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/8 text-white/45">
+							<Icon icon="material-symbols:person-outline-rounded" />
+						</span>
+					{/if}
+					<div>
+						<div class="text-sm font-medium text-white/75">{comment.author?.displayName || comment.author?.username || "匿名用户"}</div>
+						<div class="text-xs text-white/35">{formatForumDateTime(comment.updatedAt || comment.createdAt)}</div>
+					</div>
 				{/if}
-				<div>
-					<div class="text-sm font-medium text-white/75">{comment.author?.displayName || comment.author?.username || "匿名用户"}</div>
-					<div class="text-xs text-white/35">{formatForumDateTime(comment.updatedAt || comment.createdAt)}</div>
-				</div>
 			</div>
 			{#if comment.isPinned}
 				<span class="inline-flex items-center gap-1 rounded-lg border border-[var(--primary)]/25 bg-[var(--primary)]/12 px-2.5 py-1 text-xs font-medium text-[var(--primary)]" title="置顶评论" aria-label="置顶评论">

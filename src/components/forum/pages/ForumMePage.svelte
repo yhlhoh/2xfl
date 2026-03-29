@@ -327,6 +327,10 @@
 			</div>
 			<div class="flex flex-wrap gap-3">
 				<a href="/forum/" class="rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white/60">返回论坛首页</a>
+				{#if user?.id}
+					<a href={`/forum/u/${encodeURIComponent(user.id)}/`} class="rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white/70">查看我的公开主页</a>
+				{/if}
+				<a href="/forum/me/profile/" class="rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white/70">个人信息</a>
 				{#if isAdminUser(user)}
 					<a href="/forum/admin/" class="rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white/70">进入管理控制台</a>
 				{/if}
