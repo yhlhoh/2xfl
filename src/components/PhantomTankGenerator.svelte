@@ -383,7 +383,7 @@
 		<div class="rounded-2xl border border-white/10 bg-white/5 p-5">
 			<h2 class="mb-2 text-lg font-bold text-90">生成结果</h2>
 			<p class="mb-5 text-sm leading-relaxed text-50">
-				输出为带透明通道的 PNG。下方同时提供白底与黑底预览，便于观察隐藏图 / 幻影图的显隐效果。
+				输出为 PNG 棋盘图。该工具采用你提供的原始幻影图算法，不提供黑白底切换预览。
 			</p>
 
 			{#if errorMessage}
@@ -404,15 +404,9 @@
 				<canvas bind:this={outputCanvas} class:hidden={!resultUrl} class="w-full rounded-2xl border border-white/10 bg-[linear-gradient(45deg,rgba(255,255,255,0.08)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.08)_75%),linear-gradient(45deg,rgba(255,255,255,0.08)_25%,transparent_25%,transparent_75%,rgba(255,255,255,0.08)_75%)] bg-[length:24px_24px] bg-[position:0_0,12px_12px]" />
 
 				{#if resultUrl}
-					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-						<div class="rounded-2xl border border-white/10 bg-white p-3">
-							<p class="mb-3 text-sm font-medium text-black/70">白底预览</p>
-							<img src={resultUrl} alt="白底预览" class="w-full rounded-lg border border-black/10" />
-						</div>
-						<div class="rounded-2xl border border-white/10 bg-black p-3">
-							<p class="mb-3 text-sm font-medium text-white/70">黑底预览</p>
-							<img src={resultUrl} alt="黑底预览" class="w-full rounded-lg border border-white/10" />
-						</div>
+					<div class="rounded-2xl border border-white/10 bg-black/20 p-3">
+						<p class="mb-3 text-sm font-medium text-90">输出预览</p>
+						<img src={resultUrl} alt="输出预览" class="w-full rounded-lg border border-white/10 bg-[var(--card-bg)] object-contain" />
 					</div>
 					<p class="text-xs leading-relaxed text-white/45">输出尺寸：{resultWidth} × {resultHeight}。若想改变视觉效果，可继续调整四个参数后重新生成。</p>
 				{:else}
@@ -429,7 +423,8 @@
 				<li>1. 上传原图与隐藏图；原图决定最终输出尺寸。</li>
 				<li>2. 参数语义与原始算法保持一致：原图亮度提高、隐藏图亮度降低、以及双方对比度。</li>
 				<li>3. 点击“生成图像”后，会按 `(x + y) % 2` 的奇偶像素规则交替写入原图像素与隐藏图像素。</li>
-				<li>4. 结果会以 PNG 无损格式生成，点击下载按钮即可保存。</li>
+				<li>4. 该工具生成的是幻影图，不是黑白底切换预览的光棱坦克；想看到隐藏图，请在系统、相册或图片查看器中全局拉高亮度。</li>
+				<li>5. 结果会以 PNG 无损格式生成，点击下载按钮即可保存。</li>
 			</ul>
 		</div>
 	</section>
