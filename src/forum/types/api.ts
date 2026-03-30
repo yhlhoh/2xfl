@@ -55,6 +55,7 @@ export interface AdminStats {
 export interface ForumAdminSettings {
 	turnstileEnabled: boolean;
 	notifyOnUserDelete: boolean;
+	notifyOnPostDelete: boolean;
 	notifyOnUsernameChange: boolean;
 	notifyOnAvatarChange: boolean;
 	notifyOnManualVerify: boolean;

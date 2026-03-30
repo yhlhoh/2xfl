@@ -15,6 +15,7 @@ import { forumRequest } from "./client";
 interface RawAdminSettings {
 	turnstile_enabled?: boolean;
 	notify_on_user_delete?: boolean;
+	notify_on_post_delete?: boolean;
 	notify_on_username_change?: boolean;
 	notify_on_avatar_change?: boolean;
 	notify_on_manual_verify?: boolean;
@@ -44,6 +45,7 @@ function normalizeAdminSettings(settings: RawAdminSettings): ForumAdminSettings 
 	return {
 		turnstileEnabled: Boolean(settings.turnstile_enabled),
 		notifyOnUserDelete: Boolean(settings.notify_on_user_delete),
+		notifyOnPostDelete: Boolean(settings.notify_on_post_delete),
 		notifyOnUsernameChange: Boolean(settings.notify_on_username_change),
 		notifyOnAvatarChange: Boolean(settings.notify_on_avatar_change),
 		notifyOnManualVerify: Boolean(settings.notify_on_manual_verify),
@@ -94,6 +96,7 @@ export function saveAdminSettings(settings: ForumAdminSettings) {
 		json: {
 			turnstile_enabled: settings.turnstileEnabled,
 			notify_on_user_delete: settings.notifyOnUserDelete,
+			notify_on_post_delete: settings.notifyOnPostDelete,
 			notify_on_username_change: settings.notifyOnUsernameChange,
 			notify_on_avatar_change: settings.notifyOnAvatarChange,
 			notify_on_manual_verify: settings.notifyOnManualVerify,
@@ -184,6 +187,13 @@ export function verifyAdminUser(userId: string) {
 
 export function deleteAdminUser(userId: string) {
 	return forumRequest<AdminUserActionResult>(`/api/admin/users/${userId}`, {
+		method: "DELETE",
+		requiresAuth: true,
+	});
+}
+
+export function deleteAdminPost(id: string) {
+	return forumRequest<{ success: true }>(`/api/admin/posts/${id}`, {
 		method: "DELETE",
 		requiresAuth: true,
 	});

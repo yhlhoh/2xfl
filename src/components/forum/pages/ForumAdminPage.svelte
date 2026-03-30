@@ -20,6 +20,7 @@
 	} from "@/forum/api/admin";
 	import { getSession } from "@/forum/api/auth";
 	import { forumAuth } from "@/forum/stores/auth";
+	import { emitErrorToast, emitSuccessToast } from "@/forum/utils/toast";
 	import { forumEnv } from "@/forum/stores/env";
 	import type {
 		AdminEmailTestResult,
@@ -34,6 +35,7 @@
 	const defaultSettings: ForumAdminSettings = {
 		turnstileEnabled: false,
 		notifyOnUserDelete: false,
+		notifyOnPostDelete: false,
 		notifyOnUsernameChange: false,
 		notifyOnAvatarChange: false,
 		notifyOnManualVerify: false,
@@ -164,9 +166,11 @@
 		status = "正在保存设置...";
 		try {
 			await saveAdminSettings(settings);
-			status = "站点设置已保存。";
+			status = "";
+			emitSuccessToast("站点设置", "站点设置已保存。");
 		} catch (error) {
 			status = error instanceof Error ? error.message : "站点设置保存失败。";
+			emitErrorToast("站点设置", status);
 		}
 	}
 
@@ -519,6 +523,7 @@
 					<h2 class="text-lg font-bold text-white">站点设置</h2>
 					<label class="flex items-center gap-2 text-sm text-white/70"><input type="checkbox" bind:checked={settings.turnstileEnabled} />启用 Turnstile</label>
 					<label class="flex items-center gap-2 text-sm text-white/70"><input type="checkbox" bind:checked={settings.notifyOnUserDelete} />删除账号时通知用户</label>
+					<label class="flex items-center gap-2 text-sm text-white/70"><input type="checkbox" bind:checked={settings.notifyOnPostDelete} />删除帖子时通知用户</label>
 					<label class="flex items-center gap-2 text-sm text-white/70"><input type="checkbox" bind:checked={settings.notifyOnUsernameChange} />修改用户名时通知用户</label>
 					<label class="flex items-center gap-2 text-sm text-white/70"><input type="checkbox" bind:checked={settings.notifyOnAvatarChange} />修改头像时通知用户</label>
 					<label class="flex items-center gap-2 text-sm text-white/70"><input type="checkbox" bind:checked={settings.notifyOnManualVerify} />手动验证时通知用户</label>

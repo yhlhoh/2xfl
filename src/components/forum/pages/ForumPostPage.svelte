@@ -6,11 +6,13 @@
 	import ForumMarkdownContent from "@/components/forum/ForumMarkdownContent.svelte";
 	import ForumMarkdownEditor from "@/components/forum/ForumMarkdownEditor.svelte";
 	import { createComment, getComments, type CommentListQuery } from "@/forum/api/comments";
+	import { deleteAdminPost } from "@/forum/api/admin";
 	import { getSession } from "@/forum/api/auth";
 	import { getPost, likePost } from "@/forum/api/posts";
 	import { forumAuth } from "@/forum/stores/auth";
 	import { ForumApiError } from "@/forum/types/api";
 	import type { ForumComment } from "@/forum/types/comment";
+	import { emitErrorToast, emitSuccessToast } from "@/forum/utils/toast";
 	import type { ForumPostDetail } from "@/forum/types/post";
 	import type { ForumUser } from "@/forum/types/user";
 	import { renderForumMarkdown } from "@/forum/utils/markdown";
@@ -35,6 +37,8 @@
 	let currentUser: ForumUser | null = null;
 	let authReady = false;
 	let canEditPost = false;
+	let canDeletePost = false;
+	let deleteBusy = false;
 	const commentSortOptions = [
 		{ value: "hot", label: "最热" },
 		{ value: "oldest", label: "最早" },
@@ -241,7 +245,54 @@
 		return normalizeRole(user?.role) === "admin";
 	}
 
+	async function handleDeletePost() {
+		if (!post || !canDeletePost || deleteBusy) {
+			return;
+		}
+		if (!window.confirm("确定要删除这篇帖子吗？删除后不可恢复。")) {
+			return;
+		}
+		deleteBusy = true;
+		commentStatus = "正在删除帖子...";
+		try {
+			await deleteAdminPost(post.id);
+			commentStatus = "帖子已删除，正在返回论坛首页...";
+			emitSuccessToast("帖子管理", "帖子已删除，正在返回论坛首页...");
+			await new Promise((resolve) => window.setTimeout(resolve, 180));
+			navigateTo("/forum/");
+		} catch (error) {
+			if (error instanceof ForumApiError) {
+				if (error.status === 404) {
+					commentStatus = "帖子不存在或已被删除。";
+					emitErrorToast("帖子管理", "帖子不存在或已被删除。");
+					await new Promise((resolve) => window.setTimeout(resolve, 180));
+					navigateTo("/forum/");
+					return;
+				}
+				if (error.status === 401) {
+					forumAuth.clear();
+					commentStatus = "登录状态已失效，请重新登录后再试。";
+					emitErrorToast("帖子管理", "登录状态已失效，请重新登录后再试。");
+					return;
+				}
+				if (error.status === 403) {
+					commentStatus = "你没有删除该帖子的管理员权限。";
+					emitErrorToast("帖子管理", "你没有删除该帖子的管理员权限。");
+					return;
+				}
+				commentStatus = error.message || "删帖失败，请稍后重试。";
+				emitErrorToast("帖子管理", commentStatus);
+				return;
+			}
+			commentStatus = error instanceof Error ? error.message : "删帖失败，请稍后重试。";
+			emitErrorToast("帖子管理", commentStatus);
+		} finally {
+			deleteBusy = false;
+		}
+	}
+
 	$: canEditPost = Boolean(post && authReady && currentUser && (isCurrentUserAdmin(currentUser) || Boolean(post.authorId && currentUser.id === post.authorId)));
+	$: canDeletePost = Boolean(post && authReady && currentUser && isCurrentUserAdmin(currentUser));
 
 	async function ensureCurrentUser() {
 		const state = get(forumAuth);
@@ -349,6 +400,9 @@
 						<a href="/forum/" class="rounded-xl border border-white/10 px-4 py-2 text-sm font-bold text-white/60">返回论坛首页</a>
 						{#if canEditPost}
 							<a href={`/forum/edit/?id=${encodeURIComponent(post.id)}`} class="rounded-xl border border-white/10 px-4 py-2 text-sm font-bold text-white/75">编辑帖子</a>
+						{/if}
+						{#if canDeletePost}
+							<button class="rounded-xl border border-red-200/20 px-4 py-2 text-sm font-bold text-red-200 disabled:opacity-60" type="button" disabled={deleteBusy} on:click={handleDeletePost}>{deleteBusy ? "删除中..." : "删除帖子"}</button>
 						{/if}
 						<div class="rounded-xl border border-white/10 px-4 py-2 text-sm font-bold text-white/60">
 							<div class="flex items-center gap-2">
