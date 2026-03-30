@@ -12,7 +12,7 @@ lang: ""
 
 比如说我的项目：
 
-::github{repo="afoim/forum_for_cloudflare"}
+::github{repo="afoim/acofork_forum_backend"}
 
 前端是一坨React
 

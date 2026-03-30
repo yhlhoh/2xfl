@@ -301,7 +301,7 @@
                 - spinbutton "登录态有效天数" [ref=e213]: "7"
               - generic [ref=e214]:
                 - text: 首页说明 Markdown
-                - textbox "首页说明 Markdown" [ref=e215]: 开源：[https://github.com/afoim/forum_for_cloudflare](https://github.com/afoim/forum_for_cloudflare) 基于 shadcn/ui + Tailwind 的多页应用（非 SPA），由 Cloudflare Workers 在边缘统一提供静态页面与 API。感谢 [https://www.cloudflare.com](https://www.cloudflare.com) 提供的 CDN 与 DDoS 防护服务
+                - textbox "首页说明 Markdown" [ref=e215]: 开源：[https://github.com/afoim/acofork_forum_backend](https://github.com/afoim/acofork_forum_backend) 基于 shadcn/ui + Tailwind 的多页应用（非 SPA），由 Cloudflare Workers 在边缘统一提供静态页面与 API。感谢 [https://www.cloudflare.com](https://www.cloudflare.com) 提供的 CDN 与 DDoS 防护服务
               - generic [ref=e216]:
                 - text: 全站页脚 Markdown
                 - textbox "全站页脚 Markdown" [ref=e217]

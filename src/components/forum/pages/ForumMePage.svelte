@@ -334,7 +334,7 @@
 				{#if isAdminUser(user)}
 					<a href="/forum/admin/" class="rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white/70">进入管理控制台</a>
 				{/if}
-				<button class="rounded-xl border border-white/10 px-4 py-3 text-sm font-bold text-white/75" on:click={submitLogout}>退出登录</button>
+				<button class="rounded-xl border border-red-200/20 px-4 py-3 text-sm font-bold text-red-200" on:click={submitLogout}>退出登录</button>
 			</div>
 		</div>
 
