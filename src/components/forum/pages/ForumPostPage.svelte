@@ -65,18 +65,26 @@ function refreshCommentCount() {
 
 function handleNewComment(payload: Record<string, unknown>) {
 	const commentPayload = payload as unknown as NewCommentPayload;
+	console.log("[ForumPostPage] New comment event received:", commentPayload);
 	if (commentPayload.postId === postId) {
-		console.log("New comment received via WebSocket:", commentPayload.comment);
+		console.log(
+			"[ForumPostPage] New comment matches current post, refreshing comments...",
+		);
 		// 重新加载评论以获取完整数据
 		void loadComments();
 		commentStatus = "收到新评论，已自动刷新。";
+	} else {
+		console.log("[ForumPostPage] New comment for different post, ignoring");
 	}
 }
 
 function handlePostUpdated(payload: Record<string, unknown>) {
 	const postPayload = payload as unknown as PostUpdatedPayload;
+	console.log("[ForumPostPage] Post updated event received:", postPayload);
 	if (postPayload.postId === postId) {
-		console.log("Post updated via WebSocket:", postPayload);
+		console.log(
+			"[ForumPostPage] Post update matches current post, updating content...",
+		);
 		// 更新帖子内容
 		if (post) {
 			post = {
@@ -95,17 +103,25 @@ function handlePostUpdated(payload: Record<string, unknown>) {
 }
 
 function setupWebSocket() {
-	if (!postId) return;
+	if (!postId) {
+		console.log("[ForumPostPage] No postId, skipping WebSocket setup");
+		return;
+	}
+
+	console.log("[ForumPostPage] Setting up WebSocket for post:", postId);
 
 	forumWebSocket.on("new_comment", handleNewComment);
 	forumWebSocket.on("post_updated", handlePostUpdated);
 	forumWebSocket.on("connected", () => {
 		wsConnected = true;
-		console.log("WebSocket connected for post:", postId);
+		console.log("[ForumPostPage] WebSocket connected for post:", postId);
 	});
 	forumWebSocket.on("disconnected", () => {
 		wsConnected = false;
-		console.log("WebSocket disconnected");
+		console.log("[ForumPostPage] WebSocket disconnected");
+	});
+	forumWebSocket.on("subscribed", (payload) => {
+		console.log("[ForumPostPage] WebSocket subscribed event:", payload);
 	});
 
 	// 连接WebSocket并订阅当前帖子

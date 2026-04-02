@@ -62,6 +62,7 @@ export class ForumWebSocket {
 			this.isConnecting ||
 			(this.ws && this.ws.readyState === WebSocket.OPEN)
 		) {
+			console.log("[WebSocket] Already connected or connecting, skipping...");
 			return;
 		}
 
@@ -72,11 +73,13 @@ export class ForumWebSocket {
 			? `${this.baseUrl}/api/ws?postId=${encodeURIComponent(postId)}`
 			: `${this.baseUrl}/api/ws`;
 
+		console.log("[WebSocket] Connecting to:", url);
+
 		try {
 			this.ws = new WebSocket(url);
 
 			this.ws.onopen = () => {
-				console.log("WebSocket connected");
+				console.log("[WebSocket] Connected successfully");
 				this.isConnecting = false;
 				this.reconnectAttempts = 0;
 				this.startPingInterval();
@@ -113,24 +116,31 @@ export class ForumWebSocket {
 	}
 
 	private handleMessage(data: WebSocketMessage): void {
+		console.log("[WebSocket] Received message:", data.type, data.payload);
 		switch (data.type) {
 			case "connected":
 				this.emit("connected", data.payload || {});
 				break;
 			case "subscribed":
+				console.log(
+					"[WebSocket] Successfully subscribed to post:",
+					data.payload,
+				);
 				this.emit("subscribed", data.payload || {});
 				break;
 			case "new_comment":
+				console.log("[WebSocket] New comment received:", data.payload);
 				this.emit("new_comment", data.payload || {});
 				break;
 			case "post_updated":
+				console.log("[WebSocket] Post updated:", data.payload);
 				this.emit("post_updated", data.payload || {});
 				break;
 			case "pong":
 				this.emit("pong", {});
 				break;
 			default:
-				console.log("Unknown WebSocket message type:", data.type);
+				console.log("[WebSocket] Unknown message type:", data.type);
 		}
 	}
 
