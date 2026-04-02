@@ -19,23 +19,23 @@ var upgrader = websocket.Upgrader{
 type Msg struct {
 	SDP          string `json:"sdp,omitempty"`
 	ICECandidate string `json:"ice-candidate,omitempty"`
+	ProbeAnswer  string `json:"probe-answer,omitempty"`
 }
 
 type Result struct {
-	NATType  string `json:"nat_type"`
-	PublicIP string `json:"public_ip"`
+	NATType  string `json:"public_ip"`
+	PublicIP string `json:"nat_type"`
 }
 
 type ClientSession struct {
-	ws         *websocket.Conn
-	pcA        *webrtc.PeerConnection
-	pcB        *webrtc.PeerConnection
-	publicIP   string
-	ports      map[string]bool
-	mu         sync.Mutex
-	dataChanA  *webrtc.DataChannel
-	dataChanB  *webrtc.DataChannel
-	probeRecv  bool
+	ws        *websocket.Conn
+	pcA       *webrtc.PeerConnection
+	pcB       *webrtc.PeerConnection
+	publicIP  string
+	ports     map[string]bool
+	mu        sync.Mutex
+	dataChanA *webrtc.DataChannel
+	pcBRecv   bool
 }
 
 func main() {
@@ -53,12 +53,12 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	defer ws.Close()
 
 	session := &ClientSession{
-		ws:      ws,
-		ports:   make(map[string]bool),
-		probeRecv: false,
+		ws:     ws,
+		ports:  make(map[string]bool),
+		pcBRecv: false,
 	}
 
-	// === 创建pcA（主连接）===
+	// === 创建pcA（主连接，使用STUN）===
 	pcA, err := webrtc.NewPeerConnection(webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
 			{URLs: []string{"stun:stun.l.google.com:19302"}},
@@ -71,8 +71,10 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	session.pcA = pcA
 	defer pcA.Close()
 
-	// === 创建pcB（探测连接）===
-	pcB, err := webrtc.NewPeerConnection(webrtc.Configuration{})
+	// === 创建pcB（探测连接，不用STUN，使用不同端口）===
+	pcB, err := webrtc.NewPeerConnection(webrtc.Configuration{
+		ICEServers: []webrtc.ICEServer{},
+	})
 	if err != nil {
 		log.Println("创建pcB失败:", err)
 		return
@@ -88,44 +90,57 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		dc.OnOpen(func() {
 			log.Println("pcA DataChannel已打开")
 
-			// 等待3秒后开始分析
-			go func() {
-				time.Sleep(3 * time.Second)
-				session.analyzeAndSendResult()
-			}()
+			// 开始Full Cone探测
+			go session.probeFullCone()
 		})
 
 		dc.OnMessage(func(msg webrtc.DataChannelMessage) {
 			text := string(msg.Data)
 			log.Println("pcA收到消息:", text)
 
-			// 收到探测响应
 			if text == "probe-ack" {
 				session.mu.Lock()
-				session.probeRecv = true
+				session.pcBRecv = true
 				session.mu.Unlock()
-				log.Println("收到探测响应，可能是Restricted Cone")
 			}
 		})
 	})
 
-	// === pcA的ICE候选者处理 ===
+	// === pcA的ICE候选者 ===
 	pcA.OnICECandidate(func(c *webrtc.ICECandidate) {
 		if c == nil {
 			return
 		}
-		candidate := c.ToJSON().Candidate
-		log.Println("pcA ICE候选者:", candidate)
-
-		// 发送给客户端
 		session.ws.WriteJSON(map[string]string{
-			"ice-candidate": candidate,
+			"ice-candidate": c.ToJSON().Candidate,
 		})
 	})
 
-	// === pcA ICE连接状态 ===
 	pcA.OnICEConnectionStateChange(func(state webrtc.ICEConnectionState) {
 		log.Println("pcA ICE状态:", state.String())
+	})
+
+	// === pcB的DataChannel（用于探测）===
+	pcB.OnDataChannel(func(dc *webrtc.DataChannel) {
+		log.Println("pcB收到DataChannel:", dc.Label())
+		dc.OnOpen(func() {
+			log.Println("pcB DataChannel已打开")
+			dc.SendText("probe")
+		})
+		dc.OnMessage(func(msg webrtc.DataChannelMessage) {
+			log.Println("pcB收到消息:", string(msg.Data))
+		})
+	})
+
+	pcB.OnICECandidate(func(c *webrtc.ICECandidate) {
+		if c == nil {
+			return
+		}
+		log.Println("pcB ICE候选者:", c.ToJSON().Candidate)
+	})
+
+	pcB.OnICEConnectionStateChange(func(state webrtc.ICEConnectionState) {
+		log.Println("pcB ICE状态:", state.String())
 	})
 
 	// === 处理WebSocket消息 ===
@@ -143,6 +158,11 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 
 		if msg.ICECandidate != "" {
 			session.handleICECandidate(msg.ICECandidate)
+		}
+
+		if msg.ProbeAnswer != "" {
+			log.Println("收到探测Answer")
+			session.handleProbeAnswer(msg.ProbeAnswer)
 		}
 	}
 }
@@ -176,6 +196,8 @@ func (s *ClientSession) handleSDP(sdp string) {
 }
 
 func (s *ClientSession) handleICECandidate(candidate string) {
+	log.Println("收到客户端ICE候选者:", candidate[:min(60, len(candidate))])
+
 	err := s.pcA.AddICECandidate(webrtc.ICECandidateInit{
 		Candidate: candidate,
 	})
@@ -197,75 +219,116 @@ func (s *ClientSession) handleICECandidate(candidate string) {
 				s.publicIP = ip
 				s.ports[port] = true
 				s.mu.Unlock()
-				log.Printf("记录srflx: IP=%s, Port=%s\n", ip, port)
+				log.Printf("记录客户端srflx: IP=%s, Port=%s\n", ip, port)
 			}
 		}
 	}
 }
 
-func (s *ClientSession) analyzeAndSendResult() {
+func (s *ClientSession) handleProbeAnswer(answerSdp string) {
+	log.Println("设置探测Answer")
+
+	err := s.pcB.SetRemoteDescription(webrtc.SessionDescription{
+		Type: webrtc.SDPTypeAnswer,
+		SDP:  answerSdp,
+	})
+	if err != nil {
+		log.Println("设置pcB RemoteDescription失败:", err)
+	}
+}
+
+func (s *ClientSession) probeFullCone() {
+	log.Println("开始Full Cone探测...")
+
+	// 等待ICE连接建立
+	time.Sleep(2 * time.Second)
+
 	s.mu.Lock()
-	defer s.mu.Unlock()
+	ip := s.publicIP
+	s.mu.Unlock()
 
-	log.Printf("分析结果: IP=%s, 端口数=%d\n", s.publicIP, len(s.ports))
-
-	if s.publicIP == "" {
+	if ip == "" {
 		s.sendResult("Blocked", "")
 		return
 	}
 
 	// 端口超过1个，对称型NAT
 	if len(s.ports) > 1 {
-		s.sendResult("Symmetric", s.publicIP)
+		s.sendResult("Symmetric", ip)
 		return
 	}
 
-	// 尝试探测端口限制型
-	log.Println("开始探测Port Restricted...")
+	// 尝试用pcB创建offer连接客户端
+	log.Println("使用pcB探测Full Cone...")
 
-	// 创建探测DataChannel
+	// 创建DataChannel用于探测
 	dcB, err := s.pcB.CreateDataChannel("probe", nil)
 	if err != nil {
 		log.Println("创建探测DataChannel失败:", err)
-		s.sendResult("Port Restricted Cone", s.publicIP)
+		s.sendResult("Port Restricted Cone", ip)
 		return
 	}
-	s.dataChanB = dcB
 
 	dcB.OnOpen(func() {
-		log.Println("探测DataChannel已打开，发送probe")
+		log.Println("pcB DataChannel已打开，发送probe")
 		dcB.SendText("probe")
 	})
 
 	dcB.OnMessage(func(msg webrtc.DataChannelMessage) {
-		log.Println("探测收到消息:", string(msg.Data))
+		log.Println("pcB收到消息:", string(msg.Data))
+		s.mu.Lock()
+		s.pcBRecv = true
+		s.mu.Unlock()
+	})
+
+	offer, err := s.pcB.CreateOffer(nil)
+	if err != nil {
+		log.Println("pcB创建offer失败:", err)
+		s.sendResult("Port Restricted Cone", ip)
+		return
+	}
+
+	err = s.pcB.SetLocalDescription(offer)
+	if err != nil {
+		log.Println("pcB设置local desc失败:", err)
+		s.sendResult("Port Restricted Cone", ip)
+		return
+	}
+
+	// 将pcB的offer发送给客户端，让客户端添加
+	s.ws.WriteJSON(map[string]string{
+		"probe-offer": offer.SDP,
 	})
 
 	// 等待探测结果
-	time.Sleep(2 * time.Second)
+	time.Sleep(4 * time.Second)
 
-	// 通过pcA的DataChannel发送探测请求
-	if s.dataChanA != nil {
-		s.dataChanA.SendText("ping-probe")
-	}
+	s.mu.Lock()
+	recv := s.pcBRecv
+	s.mu.Unlock()
 
-	time.Sleep(1 * time.Second)
-
-	if s.probeRecv {
-		s.sendResult("Restricted Cone", s.publicIP)
+	if recv {
+		s.sendResult("Full Cone", ip)
 	} else {
-		s.sendResult("Port Restricted Cone", s.publicIP)
+		s.sendResult("Port Restricted Cone", ip)
 	}
 }
 
 func (s *ClientSession) sendResult(natType, ip string) {
-	result := Result{
-		NATType:  natType,
-		PublicIP: ip,
+	result := map[string]string{
+		"nat_type":  natType,
+		"public_ip": ip,
 	}
 
 	jsonData, _ := json.Marshal(result)
 	log.Println("发送结果:", string(jsonData))
 
 	s.ws.WriteJSON(result)
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
