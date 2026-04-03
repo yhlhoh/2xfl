@@ -41,7 +41,6 @@ export class ForumWebSocket {
 	private reconnectAttempts = 0;
 	private maxReconnectAttempts = 5;
 	private reconnectDelay = 1000;
-	private pingInterval: ReturnType<typeof setInterval> | null = null;
 	private eventHandlers: Map<string, WebSocketEventHandler[]> = new Map();
 	private currentPostId: string | null = null;
 	private isConnecting = false;
@@ -82,9 +81,7 @@ export class ForumWebSocket {
 				console.log("[WebSocket] Connected successfully");
 				this.isConnecting = false;
 				this.reconnectAttempts = 0;
-				this.startPingInterval();
 
-				// 连接后主动发送订阅消息
 				if (this.currentPostId) {
 					console.log("[WebSocket] Subscribing to post:", this.currentPostId);
 					this.ws?.send(
@@ -110,7 +107,6 @@ export class ForumWebSocket {
 			this.ws.onclose = () => {
 				console.log("WebSocket disconnected");
 				this.isConnecting = false;
-				this.stopPingInterval();
 				this.emit("disconnected", {});
 				this.scheduleReconnect();
 			};
@@ -148,9 +144,6 @@ export class ForumWebSocket {
 				console.log("[WebSocket] Post updated:", data.payload);
 				this.emit("post_updated", data.payload || {});
 				break;
-			case "pong":
-				this.emit("pong", {});
-				break;
 			default:
 				console.log("[WebSocket] Unknown message type:", data.type);
 		}
@@ -180,26 +173,6 @@ export class ForumWebSocket {
 		}
 	}
 
-	ping(): void {
-		if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-			this.ws.send(JSON.stringify({ type: "ping" }));
-		}
-	}
-
-	private startPingInterval(): void {
-		this.stopPingInterval();
-		this.pingInterval = setInterval(() => {
-			this.ping();
-		}, 30000);
-	}
-
-	private stopPingInterval(): void {
-		if (this.pingInterval) {
-			clearInterval(this.pingInterval);
-			this.pingInterval = null;
-		}
-	}
-
 	private scheduleReconnect(): void {
 		if (this.reconnectAttempts < this.maxReconnectAttempts) {
 			this.reconnectAttempts++;
@@ -215,7 +188,6 @@ export class ForumWebSocket {
 	}
 
 	disconnect(): void {
-		this.stopPingInterval();
 		if (this.ws) {
 			this.ws.close();
 			this.ws = null;
