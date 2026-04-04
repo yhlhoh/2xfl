@@ -1,4 +1,5 @@
 <script lang="ts">
+import ForumSkeleton from "@/components/forum/ForumSkeleton.svelte";
 import PostList from "@/components/forum/PostList.svelte";
 import { getCurrentUser, getSession } from "@/forum/api/auth";
 import { getUserPosts, getUserProfile } from "@/forum/api/users";
@@ -126,7 +127,7 @@ onMount(() => {
 </script>
 
 {#if loading}
-	<div class="card-base p-6 text-white/50">正在加载用户主页...</div>
+	<ForumSkeleton type="profile" />
 {:else if !profile}
 	<div class="card-base p-6 text-white/50 space-y-2">
 		<p>用户主页不可用。</p>
@@ -135,7 +136,7 @@ onMount(() => {
 		{/if}
 	</div>
 {:else}
-	<div class="space-y-6">
+	<div class="space-y-6 onload-animation" style="animation-delay: 0ms;">
 		<section class="card-base p-6 md:p-8 space-y-5">
 			<div class="flex flex-col gap-5 border-b border-white/10 pb-6 md:flex-row md:items-start md:justify-between">
 				<div class="flex items-start gap-4 min-w-0">

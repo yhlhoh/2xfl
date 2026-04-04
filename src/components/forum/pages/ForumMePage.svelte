@@ -1,4 +1,5 @@
 <script lang="ts">
+import ForumSkeleton from "@/components/forum/ForumSkeleton.svelte";
 import {
 	changeEmail,
 	deleteAccount,
@@ -382,14 +383,14 @@ onMount(() => {
 		</div>
 
 		{#if loading}
-			<p class="text-white/50">正在恢复会话...</p>
+			<ForumSkeleton type="profile" />
 		{:else if !user}
 			<div class="rounded-xl border border-white/10 bg-white/5 p-5 text-white/55">
 				<p class="mb-3">当前尚未登录，无法查看论坛个人资料。</p>
 				<a href="/forum/auth/login/" class="text-[var(--primary)]">前往登录</a>
 			</div>
 		{:else}
-			<div class="grid gap-6 lg:grid-cols-2">
+			<div class="grid gap-6 lg:grid-cols-2 onload-animation" style="animation-delay: 0ms;">
 				<section class="rounded-2xl border border-white/10 bg-white/5 p-5 space-y-4">
 					<h2 class="text-lg font-bold text-white">基础资料</h2>
 					<div class="rounded-xl border border-white/10 bg-black/20 p-4">
