@@ -1,5 +1,4 @@
 <script lang="ts">
-import ForumLoading from "@/components/forum/ForumLoading.svelte";
 import {
 	changeEmail,
 	deleteAccount,
@@ -383,7 +382,7 @@ onMount(() => {
 		</div>
 
 		{#if loading}
-			<ForumLoading text="正在恢复会话..." />
+			<p class="text-white/50">正在恢复会话...</p>
 		{:else if !user}
 			<div class="rounded-xl border border-white/10 bg-white/5 p-5 text-white/55">
 				<p class="mb-3">当前尚未登录，无法查看论坛个人资料。</p>

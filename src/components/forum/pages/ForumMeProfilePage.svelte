@@ -1,5 +1,4 @@
 <script lang="ts">
-import ForumLoading from "@/components/forum/ForumLoading.svelte";
 import {
 	type ForumProfilePayload,
 	getCurrentUser,
@@ -170,7 +169,7 @@ onMount(() => {
 		</div>
 
 		{#if loading}
-			<ForumLoading text="正在加载个人信息..." />
+			<p class="text-white/50">正在加载个人信息...</p>
 		{:else if !user}
 			<div class="rounded-xl border border-white/10 bg-white/5 p-5 text-white/55">
 				<p class="mb-3">当前尚未登录，无法查看个人信息。</p>

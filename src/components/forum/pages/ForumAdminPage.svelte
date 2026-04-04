@@ -1,5 +1,4 @@
 <script lang="ts">
-import ForumLoading from "@/components/forum/ForumLoading.svelte";
 import {
 	cleanupAdminStorageGc,
 	createAdminCategory,
@@ -594,7 +593,7 @@ onMount(async () => {
 		{/if}
 
 		{#if loading}
-			<ForumLoading text="正在加载管理台数据..." />
+			<p class="text-white/50">正在加载管理台数据...</p>
 		{:else if !isAdmin}
 			<div class="rounded-2xl border border-white/10 bg-white/5 p-6 text-white/60 space-y-3">
 				<h2 class="text-lg font-bold text-white">无法进入管理控制台</h2>

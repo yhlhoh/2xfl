@@ -1,5 +1,4 @@
 <script lang="ts">
-import ForumLoading from "@/components/forum/ForumLoading.svelte";
 import PostList from "@/components/forum/PostList.svelte";
 import { getCurrentUser, getSession } from "@/forum/api/auth";
 import { getUserPosts, getUserProfile } from "@/forum/api/users";
@@ -127,7 +126,7 @@ onMount(() => {
 </script>
 
 {#if loading}
-	<ForumLoading text="正在加载用户主页..." />
+	<div class="card-base p-6 text-white/50">正在加载用户主页...</div>
 {:else if !profile}
 	<div class="card-base p-6 text-white/50 space-y-2">
 		<p>用户主页不可用。</p>
