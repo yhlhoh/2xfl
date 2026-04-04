@@ -1,6 +1,7 @@
 <script lang="ts">
 import { forgotPassword } from "@/forum/api/auth";
 import { getForumConfig } from "@/forum/api/config";
+import { emitErrorToast, emitSuccessToast } from "@/forum/utils/toast";
 import Icon from "@iconify/svelte";
 import { onMount } from "svelte";
 
@@ -20,16 +21,22 @@ async function loadConfig() {
 
 async function submit() {
 	if (!email.trim()) {
-		status = "请先填写邮箱。";
+		emitErrorToast("找回密码", "请先填写邮箱。");
 		return;
 	}
 	loading = true;
 	status = "正在发送重置邮件...";
 	try {
 		await forgotPassword({ email: email.trim() });
-		status = "如果该邮箱已注册，重置密码邮件已发送，请注意查收。";
+		emitSuccessToast(
+			"找回密码",
+			"如果该邮箱已注册，重置密码邮件已发送，请注意查收。",
+		);
 	} catch (error) {
-		status = error instanceof Error ? error.message : "发送失败，请稍后重试。";
+		emitErrorToast(
+			"找回密码",
+			error instanceof Error ? error.message : "发送失败，请稍后重试。",
+		);
 	} finally {
 		loading = false;
 	}

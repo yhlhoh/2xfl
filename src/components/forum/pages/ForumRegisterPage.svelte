@@ -1,6 +1,7 @@
 <script lang="ts">
 import { register } from "@/forum/api/auth";
 import { getForumConfig } from "@/forum/api/config";
+import { emitErrorToast, emitSuccessToast } from "@/forum/utils/toast";
 import Icon from "@iconify/svelte";
 import { onMount } from "svelte";
 
@@ -48,7 +49,7 @@ function validateForm() {
 async function submit() {
 	const validationMessage = validateForm();
 	if (validationMessage) {
-		status = validationMessage;
+		emitErrorToast("注册", validationMessage);
 		return;
 	}
 
@@ -60,12 +61,18 @@ async function submit() {
 			email: email.trim(),
 			password,
 		});
-		status = result.message || "注册成功，请前往邮箱完成验证。";
+		emitSuccessToast(
+			"注册",
+			result.message || "注册成功，请前往邮箱完成验证。",
+		);
 		window.setTimeout(() => {
 			window.location.href = "/forum/auth/login/";
 		}, 1200);
 	} catch (error) {
-		status = error instanceof Error ? error.message : "注册失败，请稍后重试。";
+		emitErrorToast(
+			"注册",
+			error instanceof Error ? error.message : "注册失败，请稍后重试。",
+		);
 	} finally {
 		loading = false;
 	}

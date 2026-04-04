@@ -2,6 +2,7 @@
 import { resetPassword } from "@/forum/api/auth";
 import { getForumConfig } from "@/forum/api/config";
 import { ForumApiError } from "@/forum/types/api";
+import { emitErrorToast, emitSuccessToast } from "@/forum/utils/toast";
 import Icon from "@iconify/svelte";
 import { onMount } from "svelte";
 
@@ -30,11 +31,11 @@ async function loadConfig() {
 
 async function submit() {
 	if (!token.trim()) {
-		status = "缺少重置 token。";
+		emitErrorToast("重置密码", "缺少重置 token。");
 		return;
 	}
 	if (newPassword.length < 8 || newPassword.length > 16) {
-		status = "新密码长度需为 8-16 个字符。";
+		emitErrorToast("重置密码", "新密码长度需为 8-16 个字符。");
 		return;
 	}
 	loading = true;
@@ -45,16 +46,22 @@ async function submit() {
 			newPassword,
 			totpCode: totpCode.trim() || undefined,
 		});
-		status = "密码已重置，正在前往登录页...";
+		emitSuccessToast("重置密码", "密码已重置，正在前往登录页...");
 		window.setTimeout(() => {
 			window.location.href = "/forum/auth/login/";
 		}, 1200);
 	} catch (error) {
 		if (error instanceof ForumApiError && error.message === "TOTP_REQUIRED") {
-			status = "该账号已开启二步验证，请填写 TOTP 验证码后重试。";
+			emitErrorToast(
+				"重置密码",
+				"该账号已开启二步验证，请填写 TOTP 验证码后重试。",
+			);
 			return;
 		}
-		status = error instanceof Error ? error.message : "重置失败，请稍后重试。";
+		emitErrorToast(
+			"重置密码",
+			error instanceof Error ? error.message : "重置失败，请稍后重试。",
+		);
 	} finally {
 		loading = false;
 	}

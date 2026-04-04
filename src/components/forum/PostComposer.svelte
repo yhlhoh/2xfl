@@ -5,6 +5,7 @@ import { createPost, getPost, updatePost } from "@/forum/api/posts";
 import { forumAuth } from "@/forum/stores/auth";
 import { ForumApiError } from "@/forum/types/api";
 import type { ForumPostDetail, ForumPostInput } from "@/forum/types/post";
+import { emitErrorToast, emitSuccessToast } from "@/forum/utils/toast";
 import Icon from "@iconify/svelte";
 import { onMount } from "svelte";
 import { get } from "svelte/store";
@@ -114,7 +115,7 @@ async function loadEditingPost() {
 
 	postId = resolvePostId();
 	if (!postId) {
-		status = "缺少帖子 ID，无法编辑。";
+		emitErrorToast("发帖", "缺少帖子 ID，无法编辑。");
 		loadingPost = false;
 		permissionChecked = true;
 		canSubmit = false;
@@ -126,7 +127,7 @@ async function loadEditingPost() {
 	try {
 		await ensureSession();
 		if (!isLoggedIn) {
-			status = "请先登录论坛后再编辑帖子。";
+			emitErrorToast("发帖", "请先登录论坛后再编辑帖子。");
 			permissionChecked = true;
 			canSubmit = false;
 			return;
@@ -136,12 +137,14 @@ async function loadEditingPost() {
 		applyPost(post);
 		updatePermission(post);
 		if (!canSubmit) {
-			status = "你没有权限编辑这篇帖子。";
+			emitErrorToast("发帖", "你没有权限编辑这篇帖子。");
 		}
 	} catch (error) {
 		permissionChecked = true;
-		status =
-			error instanceof Error ? error.message : "帖子加载失败，请稍后重试。";
+		emitErrorToast(
+			"发帖",
+			error instanceof Error ? error.message : "帖子加载失败，请稍后重试。",
+		);
 		canSubmit = false;
 	} finally {
 		loadingPost = false;
@@ -153,18 +156,19 @@ async function submit() {
 		return;
 	}
 	if (!title.trim() || !content.trim()) {
-		status = "请先填写标题和内容。";
+		emitErrorToast("发帖", "请先填写标题和内容。");
 		return;
 	}
 	if (mode === "edit") {
 		if (!postId) {
-			status = "缺少帖子 ID，无法保存。";
+			emitErrorToast("发帖", "缺少帖子 ID，无法保存。");
 			return;
 		}
 		if (!canSubmit) {
-			status = isLoggedIn
-				? "你没有权限编辑这篇帖子。"
-				: "请先登录论坛后再编辑帖子。";
+			emitErrorToast(
+				"发帖",
+				isLoggedIn ? "你没有权限编辑这篇帖子。" : "请先登录论坛后再编辑帖子。",
+			);
 			return;
 		}
 	}
@@ -191,15 +195,20 @@ async function submit() {
 					: "发帖成功，但未拿到帖子 ID",
 			);
 		}
-		status = `${mode === "edit" ? "保存" : "发布"}成功，即将前往帖子 #${nextPostId}`;
+		emitSuccessToast(
+			"发帖",
+			`${mode === "edit" ? "保存" : "发布"}成功，即将前往帖子 #${nextPostId}`,
+		);
 		window.location.href = `/forum/post/?id=${encodeURIComponent(nextPostId)}`;
 	} catch (error) {
-		status =
+		emitErrorToast(
+			"发帖",
 			error instanceof Error
 				? error.message
 				: mode === "edit"
 					? "保存失败，请稍后重试。"
-					: "发布失败，请稍后重试。";
+					: "发布失败，请稍后重试。",
+		);
 	} finally {
 		submitting = false;
 	}

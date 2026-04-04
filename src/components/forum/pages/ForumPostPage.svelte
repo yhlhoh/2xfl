@@ -70,9 +70,8 @@ function handleNewComment(payload: Record<string, unknown>) {
 		console.log(
 			"[ForumPostPage] New comment matches current post, refreshing comments...",
 		);
-		// 重新加载评论以获取完整数据
 		void loadComments();
-		commentStatus = "收到新评论，已自动刷新。";
+		emitSuccessToast("评论", "收到新评论，已自动刷新。");
 	} else {
 		console.log("[ForumPostPage] New comment for different post, ignoring");
 	}
@@ -85,7 +84,6 @@ function handlePostUpdated(payload: Record<string, unknown>) {
 		console.log(
 			"[ForumPostPage] Post update matches current post, updating content...",
 		);
-		// 更新帖子内容
 		if (post) {
 			post = {
 				...post,
@@ -97,7 +95,7 @@ function handlePostUpdated(payload: Record<string, unknown>) {
 					html: renderForumMarkdown(postPayload.content || post.content || ""),
 				},
 			};
-			commentStatus = "帖子内容已更新。";
+			emitSuccessToast("帖子", "帖子内容已更新。");
 		}
 	}
 }
@@ -252,7 +250,10 @@ async function submitComment(parentId?: string) {
 	const isReply = Boolean(parentId);
 	const content = (isReply ? replyContent : commentContent).trim();
 	if (!content) {
-		commentStatus = isReply ? "请先填写回复内容。" : "请先填写评论内容。";
+		emitErrorToast(
+			"评论",
+			isReply ? "请先填写回复内容。" : "请先填写评论内容。",
+		);
 		return;
 	}
 
@@ -276,14 +277,17 @@ async function submitComment(parentId?: string) {
 			commentContent = "";
 		}
 		await loadComments();
-		commentStatus = isReply ? "回复成功。" : "评论成功。";
+		commentStatus = "";
+		emitSuccessToast("评论", isReply ? "回复成功。" : "评论成功。");
 	} catch (error) {
-		commentStatus =
+		const errorMsg =
 			error instanceof Error
 				? error.message
 				: isReply
 					? "回复失败，请稍后重试。"
 					: "评论失败，请稍后重试。";
+		commentStatus = "";
+		emitErrorToast("评论", errorMsg);
 	} finally {
 		if (isReply) {
 			replySubmitting = false;
@@ -305,9 +309,8 @@ function patchComment(commentId: string, patch: Partial<ForumComment>) {
 }
 
 async function handleCommentDeleted() {
-	commentStatus = "正在刷新评论列表...";
-	await loadComments();
-	commentStatus = "评论已删除。";
+	void loadComments();
+	emitSuccessToast("评论", "评论已删除。");
 }
 
 function resolvePostId() {
@@ -369,17 +372,14 @@ async function handleDeletePost() {
 		return;
 	}
 	deleteBusy = true;
-	commentStatus = "正在删除帖子...";
 	try {
 		await deleteAdminPost(post.id);
-		commentStatus = "帖子已删除，正在返回论坛首页...";
 		emitSuccessToast("帖子管理", "帖子已删除，正在返回论坛首页...");
 		await new Promise((resolve) => window.setTimeout(resolve, 180));
 		navigateTo("/forum/");
 	} catch (error) {
 		if (error instanceof ForumApiError) {
 			if (error.status === 404) {
-				commentStatus = "帖子不存在或已被删除。";
 				emitErrorToast("帖子管理", "帖子不存在或已被删除。");
 				await new Promise((resolve) => window.setTimeout(resolve, 180));
 				navigateTo("/forum/");
@@ -387,22 +387,20 @@ async function handleDeletePost() {
 			}
 			if (error.status === 401) {
 				forumAuth.clear();
-				commentStatus = "登录状态已失效，请重新登录后再试。";
 				emitErrorToast("帖子管理", "登录状态已失效，请重新登录后再试。");
 				return;
 			}
 			if (error.status === 403) {
-				commentStatus = "你没有删除该帖子的管理员权限。";
 				emitErrorToast("帖子管理", "你没有删除该帖子的管理员权限。");
 				return;
 			}
-			commentStatus = error.message || "删帖失败，请稍后重试。";
-			emitErrorToast("帖子管理", commentStatus);
+			emitErrorToast("帖子管理", error.message || "删帖失败，请稍后重试。");
 			return;
 		}
-		commentStatus =
-			error instanceof Error ? error.message : "删帖失败，请稍后重试。";
-		emitErrorToast("帖子管理", commentStatus);
+		emitErrorToast(
+			"帖子管理",
+			error instanceof Error ? error.message : "删帖失败，请稍后重试。",
+		);
 	} finally {
 		deleteBusy = false;
 	}

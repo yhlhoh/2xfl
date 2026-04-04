@@ -144,7 +144,11 @@ async function refreshData(showLoading = false) {
 		articleNotificationsCount = nextArticleCount.count;
 	} catch (error) {
 		isAdmin = false;
-		status = error instanceof Error ? error.message : "管理台数据加载失败。";
+		status = "";
+		emitErrorToast(
+			"管理台",
+			error instanceof Error ? error.message : "管理台数据加载失败。",
+		);
 	} finally {
 		loading = false;
 		refreshing = false;
@@ -191,9 +195,14 @@ async function createCategoryAction() {
 		await createAdminCategory(newCategoryName.trim());
 		newCategoryName = "";
 		await refreshData();
-		status = "分类已添加。";
+		status = "";
+		emitSuccessToast("分类管理", "分类已添加。");
 	} catch (error) {
-		status = error instanceof Error ? error.message : "分类添加失败。";
+		status = "";
+		emitErrorToast(
+			"分类管理",
+			error instanceof Error ? error.message : "分类添加失败。",
+		);
 	}
 }
 
@@ -205,9 +214,14 @@ async function saveCategoryAction(id: string) {
 		editingCategoryId = "";
 		editingCategoryName = "";
 		await refreshData();
-		status = "分类已更新。";
+		status = "";
+		emitSuccessToast("分类管理", "分类已更新。");
 	} catch (error) {
-		status = error instanceof Error ? error.message : "分类更新失败。";
+		status = "";
+		emitErrorToast(
+			"分类管理",
+			error instanceof Error ? error.message : "分类更新失败。",
+		);
 	}
 }
 
@@ -217,9 +231,14 @@ async function deleteCategoryAction(id: string) {
 	try {
 		await deleteAdminCategory(id);
 		await refreshData();
-		status = "分类已删除。";
+		status = "";
+		emitSuccessToast("分类管理", "分类已删除。");
 	} catch (error) {
-		status = error instanceof Error ? error.message : "分类删除失败。";
+		status = "";
+		emitErrorToast(
+			"分类管理",
+			error instanceof Error ? error.message : "分类删除失败。",
+		);
 	}
 }
 
@@ -257,13 +276,19 @@ async function sendEmailTestAction() {
 			);
 			emailResults = resultGroups.flat();
 		}
-		status =
-			emailResults.length > 0
-				? "测试邮件已提交。"
-				: "请求已提交，但后端未返回详细结果。";
+		status = "";
+		if (emailResults.length > 0) {
+			emitSuccessToast("邮件测试", "测试邮件已提交。");
+		} else {
+			emitSuccessToast("邮件测试", "请求已提交，但后端未返回详细结果。");
+		}
 	} catch (error) {
 		emailResults = [];
-		status = error instanceof Error ? error.message : "测试邮件发送失败。";
+		status = "";
+		emitErrorToast(
+			"邮件测试",
+			error instanceof Error ? error.message : "测试邮件发送失败。",
+		);
 	} finally {
 		emailTesting = false;
 	}
@@ -385,7 +410,7 @@ async function saveUserAction(userId: string) {
 	}
 
 	if (Object.keys(payload).length === 0) {
-		status = "没有需要保存的更改。";
+		emitErrorToast("用户管理", "没有需要保存的更改。");
 		return;
 	}
 
@@ -395,9 +420,14 @@ async function saveUserAction(userId: string) {
 		const result = await updateAdminUser(userId, payload);
 		cancelEditUser(true);
 		await refreshData();
-		status = result.message || "用户资料已更新。";
+		status = "";
+		emitSuccessToast("用户管理", result.message || "用户资料已更新。");
 	} catch (error) {
-		status = error instanceof Error ? error.message : "用户资料更新失败。";
+		status = "";
+		emitErrorToast(
+			"用户管理",
+			error instanceof Error ? error.message : "用户资料更新失败。",
+		);
 	} finally {
 		savingUserId = "";
 	}
@@ -433,15 +463,22 @@ async function runUserAction(
 					? await resendAdminUserVerification(userId)
 					: await deleteAdminUser(userId);
 		await refreshData();
-		status =
+		status = "";
+		emitSuccessToast(
+			"用户管理",
 			result.message ||
-			(action === "verify"
-				? "用户已手动验证。"
-				: action === "resend"
-					? "验证邮件已重新发送。"
-					: "用户已删除。");
+				(action === "verify"
+					? "用户已手动验证。"
+					: action === "resend"
+						? "验证邮件已重新发送。"
+						: "用户已删除。"),
+		);
 	} catch (error) {
-		status = error instanceof Error ? error.message : "用户操作失败。";
+		status = "";
+		emitErrorToast(
+			"用户管理",
+			error instanceof Error ? error.message : "用户操作失败。",
+		);
 	} finally {
 		userActionBusyId = "";
 		userActionType = "";
@@ -462,13 +499,22 @@ async function scanStorageGcAction() {
 	status = "正在分析孤儿文件...";
 	try {
 		storageGcResult = await scanAdminStorageGc();
-		status =
-			resolveGcCount() > 0
-				? `分析完成，发现 ${resolveGcCount()} 个孤儿文件。`
-				: "分析完成，未发现可清理的孤儿文件。";
+		status = "";
+		if (resolveGcCount() > 0) {
+			emitSuccessToast(
+				"存储清理",
+				`分析完成，发现 ${resolveGcCount()} 个孤儿文件。`,
+			);
+		} else {
+			emitSuccessToast("存储清理", "分析完成，未发现可清理的孤儿文件。");
+		}
 	} catch (error) {
 		storageGcResult = null;
-		status = error instanceof Error ? error.message : "孤儿文件分析失败。";
+		status = "";
+		emitErrorToast(
+			"存储清理",
+			error instanceof Error ? error.message : "孤儿文件分析失败。",
+		);
 	} finally {
 		storageScanning = false;
 	}
@@ -488,9 +534,17 @@ async function cleanupStorageGcAction() {
 	status = "正在提交孤儿文件删除任务...";
 	try {
 		const result = await cleanupAdminStorageGc(orphans);
-		status = result.message || `已提交 ${count} 个孤儿文件的删除任务。`;
+		status = "";
+		emitSuccessToast(
+			"存储清理",
+			result.message || `已提交 ${count} 个孤儿文件的删除任务。`,
+		);
 	} catch (error) {
-		status = error instanceof Error ? error.message : "孤儿文件清理失败。";
+		status = "";
+		emitErrorToast(
+			"存储清理",
+			error instanceof Error ? error.message : "孤儿文件清理失败。",
+		);
 	} finally {
 		storageCleaning = false;
 	}
@@ -506,7 +560,11 @@ onMount(async () => {
 		hasToken = Boolean(forumAuth.getToken());
 		await refreshData(true);
 	} catch (error) {
-		status = error instanceof Error ? error.message : "会话加载失败。";
+		status = "";
+		emitErrorToast(
+			"管理台",
+			error instanceof Error ? error.message : "会话加载失败。",
+		);
 		loading = false;
 	}
 	return () => unsubscribe();

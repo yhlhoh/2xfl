@@ -3,6 +3,7 @@ import { login } from "@/forum/api/auth";
 import { getForumConfig } from "@/forum/api/config";
 import { forumAuth } from "@/forum/stores/auth";
 import { ForumApiError } from "@/forum/types/api";
+import { emitErrorToast, emitSuccessToast } from "@/forum/utils/toast";
 import Icon from "@iconify/svelte";
 import { onMount } from "svelte";
 
@@ -34,17 +35,20 @@ async function submit() {
 		});
 		forumAuth.setSession(session);
 		if (session.requiresTotp) {
-			status = "检测到需要二步验证，请填写 TOTP 验证码后重试。";
+			emitErrorToast("登录", "检测到需要二步验证，请填写 TOTP 验证码后重试。");
 			return;
 		}
-		status = "登录成功，正在跳转...";
+		emitSuccessToast("登录", "登录成功，正在跳转...");
 		window.location.href = "/forum/";
 	} catch (error) {
 		if (error instanceof ForumApiError && error.message === "TOTP_REQUIRED") {
-			status = "检测到需要二步验证，请填写 TOTP 验证码后重试。";
+			emitErrorToast("登录", "检测到需要二步验证，请填写 TOTP 验证码后重试。");
 			return;
 		}
-		status = error instanceof Error ? error.message : "登录失败，请稍后再试。";
+		emitErrorToast(
+			"登录",
+			error instanceof Error ? error.message : "登录失败，请稍后再试。",
+		);
 	} finally {
 		loading = false;
 	}
