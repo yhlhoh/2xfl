@@ -6,6 +6,10 @@ image: ../assets/images/email.png
 draft: false
 lang: ""
 ---
+# 视频
+
+https://www.bilibili.com/video/BV1hpDKBbES9/
+
 # 正式开始
 
 众所周知，目前如果你想订阅本博客，可以采用以下几种方式
