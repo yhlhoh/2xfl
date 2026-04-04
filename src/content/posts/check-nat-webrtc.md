@@ -44,6 +44,8 @@ https://www.bilibili.com/video/BV1H4DuBWEes/
 
 最终，我们只需要写好后端，再创建一个HTTP端点，即可实现 **完整的、全状态、纯浏览器的** NAT类型检测
 
+![](../assets/images/check-nat-webrtc.png)
+
 ::github{repo=afoim/webrtc_check_nat}
 
 ::url{href="https://2x.nz/nat-check/"}
