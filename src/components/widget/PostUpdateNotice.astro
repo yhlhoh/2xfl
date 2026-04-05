@@ -38,10 +38,10 @@ const updatedStr =
         const now = new Date();
         
         const diffTimeUpdated = Math.abs(now - updatedDate);
-        const diffDaysUpdated = Math.floor(diffTimeUpdated / (1000 * 60 * 60 * 24));
+        const diffDaysUpdated = Math.floor(Math.abs(new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(updatedDate.getFullYear(), updatedDate.getMonth(), updatedDate.getDate())) / (1000 * 60 * 60 * 24));
 
         const diffTimePublished = Math.abs(now - publishedDate);
-        const diffDaysPublished = Math.floor(diffTimePublished / (1000 * 60 * 60 * 24));
+        const diffDaysPublished = Math.floor(Math.abs(new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(publishedDate.getFullYear(), publishedDate.getMonth(), publishedDate.getDate())) / (1000 * 60 * 60 * 24));
 
         let statusText = "";
         if (diffDaysUpdated === 0) {
