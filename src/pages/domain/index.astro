@@ -1,0 +1,66 @@
+---
+import MainGridLayout from '../../layouts/MainGridLayout.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+import { glob } from 'glob';
+import { siteConfig } from '../../config';
+
+// 在构建时执行：全局扫描文件提取域名
+const extractDomains = async () => {
+    const rootDir = process.cwd();
+    // 只扫描 src 目录下的源码，排除 markdown 内容文件
+    const files = await glob('src/**/*.{astro,svelte,ts,js,mjs}', {
+        cwd: rootDir,
+        ignore: ['src/content/**', 'node_modules/**', '.git/**', 'dist/**', '.astro/**', 'public/**']
+    });
+
+    // 匹配如 fetch(`https://u.${customDomain}/api...`) 这种在源码中发送网络请求的调用
+    // 注意：正则表达式中避免使用可能导致回溯灾难的复杂模式
+    const requestRegex = new RegExp("(?:fetch|axios|axios\\.\\w+|new\\s+Request|XMLHttpRequest|http\\.(?:get|post|put|delete|patch|head|request))\\s*\\(\\s*[`'\"]https?:\\/\\/([^/`'\"]+)", "g");
+    const domains = new Set<string>();
+
+    for (const file of files) {
+        try {
+            const filePath = path.join(rootDir, file);
+            const content = fs.readFileSync(filePath, 'utf-8');
+            let match;
+            while ((match = requestRegex.exec(content)) !== null) {
+                // match[1] 包含域名部分
+                if (match[1]) {
+                    let domain = match[1].toLowerCase();
+                    // 如果存在配置的模板字符串变量，直接替换成真实的自定义域名
+                    domain = domain.replace('${siteconfig.customdomain}', siteConfig.customDomain.toLowerCase());
+                    domain = domain.replace('${customdomain}', siteConfig.customDomain.toLowerCase());
+
+                    if (!domain.includes('localhost') && !domain.includes('127.0.0.1') && !domain.includes('example.com') && !domain.includes('domain.com') && !domain.includes('123.123.123.123')) {
+                        domains.add(domain);
+                    }
+                }
+            }
+        } catch (e) {
+            // 忽略读取错误
+        }
+    }
+
+    return Array.from(domains).sort();
+};
+
+const domains = await extractDomains();
+---
+
+<MainGridLayout title="项目中使用的域名列表" description="列出项目中所有硬编码或引用的外部域名">
+    <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
+        <div class="card-base z-10 px-9 py-6 relative w-full">
+            <h1 class="text-2xl font-bold mb-4 text-[var(--primary)]">项目中使用的域名列表</h1>
+            <p class="mb-6 text-sm text-black/50 dark:text-white/50">此列表在构建时自动全局扫描源代码并提取去重生成。</p>
+            
+            <div class="prose dark:prose-invert max-w-none custom-md">
+                <ul>
+                    {domains.map((domain) => (
+                        <li><code>{domain}</code></li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+    </div>
+</MainGridLayout>

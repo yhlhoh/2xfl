@@ -131,16 +131,16 @@ const bannerOffset =
 		<meta name="twitter:description" content={description}>
 
 		<meta name="generator" content={Astro.generator} />
-        <link rel="preconnect" href="https://t.2x.nz" />
-        <link rel="preconnect" href="https://p.2x.nz" />
+        <link rel="preconnect" href={`https://t.${siteConfig.customDomain}`} />
+        <link rel="preconnect" href={`https://p.${siteConfig.customDomain}`} />
         <link rel="preconnect" href="https://support.nodeget.com" />
 		
 		<!-- <script src="/js/umami-share.js" defer></script> -->
-		<script data-swup-ignore-script src="https://p.2x.nz/random.js" defer></script>
+		<script data-swup-ignore-script src={`https://p.${siteConfig.customDomain}/random.js`} defer></script>
 
 <script src="../scripts/animate-value.js"></script>
 
-<script>
+<script define:vars={{ customDomain: siteConfig.customDomain }}>
 		(function () {
 		var hostname = location.hostname;
 		var port = location.port;
@@ -149,9 +149,9 @@ const bannerOffset =
 		var isDefaultPort =
 			port === "" || port === "80" || port === "443";
 
-		if (hostname !== "2x.nz" && isDefaultPort) {
+		if (hostname !== customDomain && isDefaultPort) {
 			location.replace(
-			"https://2x.nz" +
+			`https://${customDomain}` +
 			location.pathname +
 			location.search +
 			location.hash
@@ -165,7 +165,7 @@ const bannerOffset =
 		
 		
 		{/* <!-- Content Security Policy -->
-		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://giscus.app https://hpic.072103.xyz https://umami.2x.nz https://hm.baidu.com https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://static.cloudflareinsights.com https://*.adtrafficquality.google; style-src 'self' 'unsafe-inline' https://giscus.app https://fonts.googleapis.com https://api.iconify.design; font-src 'self' https://fonts.gstatic.com https://api.iconify.design; img-src 'self' data: https: http:; connect-src 'self' https://umami.2x.nz https://hm.baidu.com https://www.google-analytics.com https://analytics.google.com https://api.iconify.design https://static.cloudflareinsights.com https://pic.2x.nz https://q2.qlogo.cn https://ep1.adtrafficquality.google https://googleads.g.doubleclick.net; frame-src 'self' https://giscus.app *.bilibili.com https://www.google.com https://googleads.g.doubleclick.net https://support.nodeget.com https://*.adtrafficquality.google; object-src 'none'; base-uri 'self'; form-action 'self';"> */}
+		<meta http-equiv="Content-Security-Policy" content={`default-src 'self'; script-src 'self' 'unsafe-inline' https://giscus.app https://hpic.072103.xyz https://umami.${siteConfig.customDomain} https://hm.baidu.com https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://static.cloudflareinsights.com https://*.adtrafficquality.google; style-src 'self' 'unsafe-inline' https://giscus.app https://fonts.googleapis.com https://api.iconify.design; font-src 'self' https://fonts.gstatic.com https://api.iconify.design; img-src 'self' data: https: http:; connect-src 'self' https://umami.${siteConfig.customDomain} https://hm.baidu.com https://www.google-analytics.com https://analytics.google.com https://api.iconify.design https://static.cloudflareinsights.com https://pic.${siteConfig.customDomain} https://q2.qlogo.cn https://ep1.adtrafficquality.google https://googleads.g.doubleclick.net; frame-src 'self' https://giscus.app *.bilibili.com https://www.google.com https://googleads.g.doubleclick.net https://support.nodeget.com https://*.adtrafficquality.google; object-src 'none'; base-uri 'self'; form-action 'self';`}> */}
 		{favicons.map(favicon => (
 			<link rel="icon"
 				  href={favicon.src.startsWith('/') ? url(favicon.src) : favicon.src}

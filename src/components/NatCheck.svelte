@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { tick } from "svelte";
+  import { siteConfig } from "../config.ts";
 
   let logs: string[] = ["System ready."];
   let isTesting = false;
@@ -129,7 +130,7 @@
       
       // Server performs active probes
       // 默认后端 Python 代码 API 运行在 8080 端口，若使用了反向代理可移除 :8080
-      const apiUrl = 'https://nat.2x.nz/api/analyze';
+      const apiUrl = `https://nat.${siteConfig.customDomain}/api/analyze`;
       const res = await fetch(apiUrl, {
         method: 'POST', 
         body: JSON.stringify(data),

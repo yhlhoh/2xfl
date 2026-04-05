@@ -1,12 +1,7 @@
 <script lang="ts">
-import fa6Solid from "@iconify-json/fa6-solid/icons.json";
-import materialSymbols from "@iconify-json/material-symbols/icons.json";
 import Icon from "@iconify/svelte";
-import { addCollection } from "@iconify/svelte";
 import { url } from "@utils/url-utils.ts";
-
-addCollection(materialSymbols);
-addCollection(fa6Solid);
+import { siteConfig } from "../config.ts";
 
 interface SearchResult {
 	title: string;
@@ -106,7 +101,7 @@ const search = async (
 			type:
 				types.length > 0 ? types.join(",") : "title,description,content,link",
 		});
-		const response = await fetch(`https://s.2x.nz/?${params}`);
+		const response = await fetch(`https://s.${siteConfig.customDomain}/?${params}`);
 		if (!response.ok) {
 			throw new Error("Search failed");
 		}

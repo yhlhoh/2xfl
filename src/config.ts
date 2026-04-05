@@ -10,7 +10,10 @@ import type {
 } from "./types/config";
 import { LinkPreset } from "./types/config";
 
+const customDomain = "2x.nz";
+
 export const siteConfig: SiteConfig = {
+	customDomain,
 	title: "《二叉树树》官方网站",
 	subtitle: "AcoFork",
 	description:
@@ -49,7 +52,7 @@ export const siteConfig: SiteConfig = {
 	},
 	background: {
 		enable: true, // Enable background image
-		src: "https://c-p.2x.nz/h", // Background image URL (supports HTTPS)
+		src: `https://c-p.${customDomain}/h`, // Background image URL (supports HTTPS)
 		position: "center", // Background position: 'top', 'center', 'bottom'
 		size: "cover", // Background size: 'cover', 'contain', 'auto'
 		repeat: "no-repeat", // Background repeat: 'no-repeat', 'repeat', 'repeat-x', 'repeat-y'
@@ -69,12 +72,12 @@ export const siteConfig: SiteConfig = {
 	],
 	officialSites: [
 		{ url: "https://acofork.com", alias: "CN" },
-		{ url: "https://2x.nz", alias: "Global" },
+		{ url: `https://${customDomain}`, alias: "Global" },
 	],
 	server: [
 		{ url: "", text: "Blog" },
-		{ url: "https://u.2x.nz", text: "Umami" },
-		{ url: "https://p.2x.nz", text: "RandomPic" },
+		{ url: `https://u.${customDomain}`, text: "Umami" },
+		{ url: `https://p.${customDomain}`, text: "RandomPic" },
 	],
 };
 
@@ -102,7 +105,7 @@ export const navBarConfig: NavBarConfig = {
 		},
 		{
 			name: "统计",
-			url: "https://u.2x.nz/share/CdkXbGgZr6ECKOyK",
+			url: `https://u.${customDomain}/share/CdkXbGgZr6ECKOyK`,
 			external: true,
 			icon: "material-symbols:table-chart",
 		},
@@ -162,7 +165,7 @@ export const imageFallbackConfig: ImageFallbackConfig = {
 
 export const umamiConfig: UmamiConfig = {
 	enable: true,
-	baseUrl: "https://u.2x.nz",
+	baseUrl: `https://u.${customDomain}`,
 	shareId: "CdkXbGgZr6ECKOyK",
 	timezone: "Asia/Shanghai",
 };

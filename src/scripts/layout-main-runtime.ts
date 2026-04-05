@@ -141,8 +141,8 @@ function init() {
 	syncSidebarProfileMode();
 
 	new MutationObserver(() => {
-		const frame = document.querySelector("iframe.giscus-frame");
-		if (!frame) return;
+		const frame = document.querySelector<HTMLIFrameElement>("iframe.giscus-frame");
+		if (!frame || !frame.contentWindow) return;
 		frame.contentWindow.postMessage(
 			{ giscus: { setConfig: { theme: "dark" } } },
 			"https://giscus.app",

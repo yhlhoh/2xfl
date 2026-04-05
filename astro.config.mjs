@@ -97,14 +97,14 @@ export default defineConfig({
 	image: {
 		service: passthroughImageService(),
 	},
-	site: "https://2x.nz",
+	site: `https://${siteConfig.customDomain}`,
 	base: "/",
 	trailingSlash: "always",
 	output: "static",
 	redirects: {
 		"/privacy-policy": {
 			status: 302,
-			destination: "https://2x.nz/posts/privacy-policy/",
+			destination: `https://${siteConfig.customDomain}/posts/privacy-policy/`,
 		},
 		"/long": {
 			status: 302,
@@ -121,7 +121,7 @@ export default defineConfig({
 		},
 		"/t": {
 			status: 302,
-			destination: "https://i.2x.nz",
+			destination: `https://i.${siteConfig.customDomain}`,
 		},
 		"/ak": {
 			status: 302,
@@ -171,7 +171,7 @@ export default defineConfig({
 		},
 		"/s": {
 			status: 302,
-			destination: "https://2x.nz/_url",
+			destination: `https://${siteConfig.customDomain}/_url`,
 		},
 		"/plan": {
 			status: 302,
@@ -342,7 +342,7 @@ export default defineConfig({
 			],
 		},
 		server: {
-			allowedHosts: ["2x.nz"],
+			allowedHosts: [siteConfig.customDomain],
 		},
 		build: {
 			rollupOptions: {

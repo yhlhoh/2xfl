@@ -1,7 +1,7 @@
 import { Fancybox } from "@fancyapps/ui";
 import "@fancyapps/ui/dist/fancybox/fancybox.css";
 
-const fancyboxOptions = {
+const fancyboxOptions: any = {
 	wheel: "zoom",
 	clickContent: "close",
 	dblclickContent: "zoom",

@@ -40,6 +40,7 @@ export type SiteConfig = {
 		url: string;
 		text: string;
 	}[];
+	customDomain: string; // 统一管理的自定义域名，例如 2x.nz
 };
 
 export type Favicon = {

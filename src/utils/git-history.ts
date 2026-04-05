@@ -15,8 +15,9 @@ export function getPostHistory(postId: string): Commit[] {
 		const normalizedId = postId.replace(/\\/g, "/");
 
 		// Look up in the pre-generated history map
-		if (gitHistory?.[normalizedId]) {
-			return gitHistory[normalizedId];
+		const historyMap = gitHistory as Record<string, Commit[]>;
+		if (historyMap?.[normalizedId]) {
+			return historyMap[normalizedId];
 		}
 
 		return [];

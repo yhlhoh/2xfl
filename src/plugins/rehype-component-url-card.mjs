@@ -37,7 +37,7 @@ export function UrlCardComponent(properties, children) {
 	const nDescription = h(
 		`div#${cardUuid}-description`,
 		{ class: "uc-description" },
-		"Waiting for api.microlink.io...",
+		"Waiting for metadata...",
 	);
 
 	const nTitleText = h(
@@ -50,32 +50,29 @@ export function UrlCardComponent(properties, children) {
 		`script#${cardUuid}-script`,
 		{ type: "text/javascript", defer: true },
 		`
-      fetch('https://api.microlink.io?url=${encodeURIComponent(url)}').then(response => response.json()).then(data => {
-        if (data.status === 'success') {
-            const meta = data.data;
+      fetch('https://icon.2x.nz/?url=${url}').then(response => response.json()).then(meta => {
+        if (meta && meta.url) {
             document.getElementById('${cardUuid}-title').innerText = meta.title || "${url}";
             document.getElementById('${cardUuid}-description').innerText = meta.description || "No description available";
             
             const faviconEl = document.getElementById('${cardUuid}-favicon');
-            if (meta.logo?.url) {
-                faviconEl.style.backgroundImage = 'url(' + meta.logo.url + ')';
+            if (meta.favicon) {
+                faviconEl.style.backgroundImage = 'url(' + meta.favicon + ')';
                 faviconEl.style.backgroundColor = 'transparent';
             } else {
                  faviconEl.style.display = 'none';
             }
 
             const imageEl = document.getElementById('${cardUuid}-image');
-            if (meta.image?.url) {
-                imageEl.style.backgroundImage = 'url(' + meta.image.url + ')';
-            } else {
-                imageEl.style.display = 'none';
-                document.getElementById('${cardUuid}-container').classList.add('no-image');
-            }
+            // The new API currently does not seem to return a large image preview (meta.image)
+            // So we default to hiding it to match the new structure
+            imageEl.style.display = 'none';
+            document.getElementById('${cardUuid}-container').classList.add('no-image');
 
             document.getElementById('${cardUuid}-card').classList.remove("fetch-waiting");
             console.log("[URL-CARD] Loaded card for ${url} | ${cardUuid}.")
         } else {
-            throw new Error('Microlink API failed');
+            throw new Error('API returned invalid data');
         }
       }).catch(err => {
         const c = document.getElementById('${cardUuid}-card');
