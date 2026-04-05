@@ -223,3 +223,14 @@ export function likePost(id: string) {
 		},
 	);
 }
+
+export interface NewPostCountResult {
+	new_post_count: number;
+	last_seen_at: string | null;
+}
+
+export function getNewPostCount() {
+	return forumRequest<NewPostCountResult>("/api/posts/new-count", {
+		requiresAuth: true,
+	});
+}

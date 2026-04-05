@@ -30,6 +30,7 @@ interface RawAdminUser {
 	avatar_url?: string | null;
 	role?: string;
 	created_at?: string;
+	last_seen_at?: string | null;
 	verified?: number | boolean;
 	totp_enabled?: number | boolean;
 }
@@ -64,6 +65,7 @@ function normalizeAdminUser(user: RawAdminUser): ForumUser {
 		avatarUrl: user.avatar_url || undefined,
 		role: user.role,
 		createdAt: user.created_at,
+		lastSeenAt: user.last_seen_at ?? null,
 		verified: user.verified !== undefined ? Boolean(user.verified) : undefined,
 		totpEnabled:
 			user.totp_enabled !== undefined ? Boolean(user.totp_enabled) : undefined,

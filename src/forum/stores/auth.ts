@@ -40,12 +40,12 @@ function createAuthStore() {
 							...state.user,
 							...session.user,
 							id: session.user.id || state.user?.id || "",
-							username: session.user.username || state.user?.username,
+							username: session.user.username || state.user?.username || "",
 							displayName:
 								session.user.displayName ||
 								state.user?.displayName ||
 								session.user.username ||
-								state.user?.username,
+								state.user?.username || "",
 							avatarUrl: session.user.avatarUrl || state.user?.avatarUrl,
 							email: session.user.email || state.user?.email,
 						}

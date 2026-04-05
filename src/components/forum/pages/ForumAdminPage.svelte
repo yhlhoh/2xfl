@@ -50,6 +50,31 @@ function truncateDisplayName(value?: string, maxLength = 10) {
 	return value.length > maxLength ? `${value.slice(0, maxLength)}...` : value;
 }
 
+function formatLastSeen(isoString?: string | null): string {
+	if (!isoString) return "从未上线";
+	// 后端存储的是 UTC 时间，但 SQLite 的 CURRENT_TIMESTAMP 不带 Z 后缀
+	// 需要补上 Z 让 JS 正确按 UTC 解析，否则会被当作本地时间
+	const normalized = /[Zz+\-]\d{0,2}:?\d{0,2}$/.test(isoString)
+		? isoString
+		: `${isoString}Z`;
+	const now = Date.now();
+	const then = new Date(normalized).getTime();
+	if (Number.isNaN(then)) return "未知";
+	const diffMs = now - then;
+	if (diffMs < 0) return "刚刚";
+	const seconds = Math.floor(diffMs / 1000);
+	if (seconds < 60) return "刚刚";
+	const minutes = Math.floor(seconds / 60);
+	if (minutes < 60) return `${minutes}分钟前`;
+	const hours = Math.floor(minutes / 60);
+	if (hours < 24) return `${hours}小时前`;
+	const days = Math.floor(hours / 24);
+	if (days < 30) return `${days}天前`;
+	const months = Math.floor(days / 30);
+	if (months < 12) return `${months}个月前`;
+	return `${Math.floor(months / 12)}年前`;
+}
+
 let loading = true;
 let contentVisible = false;
 let refreshing = false;
@@ -873,6 +898,7 @@ onMount(async () => {
 										<div><span class="text-white/40">邮箱：</span><span class="break-all">{forumUser.email || "-"}</span></div>
 										<div><span class="text-white/40">角色：</span>{forumUser.role || "user"}</div>
 										<div><span class="text-white/40">状态：</span>{forumUser.verified ? "已验证" : "未验证"}{forumUser.totpEnabled ? " · 2FA" : ""}</div>
+										<div><span class="text-white/40">最后上线：</span>{formatLastSeen(forumUser.lastSeenAt)}</div>
 									</div>
 
 									<div class="flex flex-wrap gap-2">
@@ -896,6 +922,7 @@ onMount(async () => {
 									<th class="px-3 py-2">邮箱</th>
 									<th class="px-3 py-2">角色</th>
 									<th class="px-3 py-2 whitespace-nowrap">状态</th>
+									<th class="px-3 py-2 whitespace-nowrap">最后上线</th>
 									<th class="px-3 py-2 whitespace-nowrap">操作</th>
 								</tr>
 							</thead>
@@ -903,7 +930,7 @@ onMount(async () => {
 								{#each users as forumUser}
 									{#if isEditingUser(forumUser.id)}
 										<tr class="border-t border-white/10">
-											<td colspan="5" class="px-3 py-4">
+											<td colspan="6" class="px-3 py-4">
 												<div class="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70 space-y-4">
 													<div>
 														<div class="text-base font-bold text-white">编辑用户</div>
@@ -959,6 +986,7 @@ onMount(async () => {
 											</td>
 											<td class="px-3 py-3">{forumUser.role || "user"}</td>
 											<td class="px-3 py-3 whitespace-nowrap">{forumUser.verified ? "已验证" : "未验证"}{forumUser.totpEnabled ? " · 2FA" : ""}</td>
+											<td class="px-3 py-3 whitespace-nowrap text-white/50" title={forumUser.lastSeenAt || ""}>{formatLastSeen(forumUser.lastSeenAt)}</td>
 											<td class="px-3 py-3 whitespace-nowrap">
 												<div class="flex flex-wrap gap-2">
 													<button class="rounded-xl border border-white/10 px-3 py-2 text-xs font-bold text-white/75 disabled:opacity-60" disabled={hasUserActionConflict(forumUser.id)} on:click={() => startEditUser(forumUser)}>编辑资料</button>

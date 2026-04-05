@@ -12,6 +12,7 @@ export interface ForumUser {
 	email?: string;
 	role?: string;
 	createdAt?: string;
+	lastSeenAt?: string | null;
 	emailNotifications?: boolean;
 	articleNotifications?: boolean;
 	totpEnabled?: boolean;

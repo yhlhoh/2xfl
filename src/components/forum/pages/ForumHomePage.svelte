@@ -2,8 +2,9 @@
 import EnvironmentSwitcher from "@/components/forum/EnvironmentSwitcher.svelte";
 import PostList from "@/components/forum/PostList.svelte";
 import { getAdminCategories } from "@/forum/api/admin";
-import { type ForumPostListQuery, getPosts } from "@/forum/api/posts";
+import { type ForumPostListQuery, getPosts, getNewPostCount, type NewPostCountResult } from "@/forum/api/posts";
 import type { ForumCategory, ForumPostSummary } from "@/forum/types/post";
+import { forumAuth } from "@/forum/stores/auth";
 import Icon from "@iconify/svelte";
 import { onMount } from "svelte";
 
@@ -31,6 +32,7 @@ let currentPage = 1;
 let total = 0;
 let lastPage = 1;
 let initialized = false;
+let newPostCountResult: NewPostCountResult | null = null;
 
 function sanitizePage(value: string | null) {
 	const page = Number.parseInt(value || "1", 10);
@@ -188,10 +190,23 @@ async function loadCategories() {
 	}
 }
 
+async function checkNewPosts() {
+	if (!forumAuth.getToken()) return;
+	try {
+		const result = await getNewPostCount();
+		if (result && result.new_post_count > 0 && result.last_seen_at) {
+			newPostCountResult = result;
+		}
+	} catch (error) {
+		// Ignore errors silently for this purely visual badge
+	}
+}
+
 onMount(() => {
 	readQueryState();
 	loadCategories();
 	loadPosts(currentPage, false);
+	checkNewPosts();
 	initialized = true;
 
 	const handlePopState = () => {
@@ -218,6 +233,17 @@ onMount(() => {
 			</div>
 		</div>
 		<EnvironmentSwitcher />
+		{#if newPostCountResult && newPostCountResult.new_post_count > 0}
+			<div class="mt-4 flex items-center justify-between rounded-xl border border-[var(--primary)] bg-[var(--primary)]/10 px-4 py-3 text-sm text-[var(--primary)]">
+				<div class="flex items-center gap-2">
+					<Icon icon="material-symbols:new-releases-outline-rounded" class="text-[1.125rem]" />
+					<span>距您上次上线，已有 <span class="font-bold">{newPostCountResult.new_post_count}</span> 篇新帖发布。</span>
+				</div>
+				<button class="text-[var(--primary)]/60 transition hover:text-[var(--primary)]" aria-label="关闭提醒" on:click={() => newPostCountResult = null}>
+					<Icon icon="material-symbols:close-rounded" class="text-[1.125rem]" />
+				</button>
+			</div>
+		{/if}
 		<div class="mt-5 flex flex-col gap-3 lg:flex-row">
 			<div class="flex min-w-0 flex-1 gap-3">
 				<input bind:value={search} class="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-[var(--primary)]" placeholder="搜索帖子标题或内容，回车提交" on:keydown={(event) => event.key === "Enter" && submitSearch()} />
