@@ -4,37 +4,23 @@ import materialSymbols from "@iconify-json/material-symbols/icons.json";
 import Icon from "@iconify/svelte";
 import { addCollection } from "@iconify/svelte";
 import { url } from "@utils/url-utils.ts";
-import { onMount } from "svelte";
-import Highlight from "./Highlight.svelte";
 
 addCollection(materialSymbols);
 addCollection(fa6Solid);
 
 interface SearchResult {
-	url: string;
-	meta: {
-		title: string;
-	};
-	excerpt: string;
-	urlPath?: string;
-	highlightQuery?: string;
-	matchCount: number;
-}
-
-interface SearchPost {
 	title: string;
 	description: string;
-	content: string;
 	link: string;
+	score: number;
+	hitCount: number;
+	snippet: string;
 }
 
 let keywordDesktop = "";
 let keywordMobile = "";
 let result: SearchResult[] = [];
 let isSearching = false;
-let posts: SearchPost[] = [];
-let hasLoadedPosts = false;
-let isLoadingPosts = false;
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 
 const searchTypes = [
@@ -98,77 +84,6 @@ const setPanelVisibility = (show: boolean): void => {
 	}
 };
 
-const loadPostsFromRss = async (): Promise<SearchPost[]> => {
-	const response = await fetch("/rss.xml");
-	const text = await response.text();
-	const parser = new DOMParser();
-	const xml = parser.parseFromString(text, "text/xml");
-	const items = xml.querySelectorAll("item");
-
-	return Array.from(items).map((item) => {
-		let content = "";
-		const contentEncoded =
-			item.getElementsByTagNameNS("*", "encoded")[0]?.textContent ||
-			item.querySelector("*|encoded")?.textContent ||
-			"";
-
-		if (contentEncoded) {
-			content = contentEncoded.replace(/<[^>]*>/g, "");
-		}
-
-		return {
-			title: item.querySelector("title")?.textContent || "",
-			description: item.querySelector("description")?.textContent || "",
-			content,
-			link:
-				item
-					.querySelector("link")
-					?.textContent?.replace(/.*\/posts\/(.*?)\//, "$1") || "",
-		};
-	});
-};
-
-const ensurePostsLoaded = async (): Promise<void> => {
-	if (hasLoadedPosts || isLoadingPosts) return;
-	isLoadingPosts = true;
-
-	try {
-		const cached = sessionStorage.getItem("search-posts-cache");
-		if (cached) {
-			posts = JSON.parse(cached) as SearchPost[];
-			hasLoadedPosts = true;
-			return;
-		}
-
-		try {
-			const response = await fetch("/search.json");
-			if (response.ok) {
-				posts = (await response.json()) as SearchPost[];
-			} else {
-				posts = await loadPostsFromRss();
-			}
-		} catch {
-			posts = await loadPostsFromRss();
-		}
-
-		hasLoadedPosts = true;
-		sessionStorage.setItem("search-posts-cache", JSON.stringify(posts));
-	} catch (error) {
-		console.error("Error loading search data:", error);
-		posts = [];
-		hasLoadedPosts = true;
-	} finally {
-		isLoadingPosts = false;
-	}
-};
-
-const scheduleSearchDataPreload = (): void => {
-	if (typeof window === "undefined") return;
-	window.setTimeout(() => {
-		void ensurePostsLoaded();
-	}, 300);
-};
-
 const search = async (
 	keyword: string,
 	isDesktop: boolean,
@@ -183,87 +98,16 @@ const search = async (
 	isSearching = true;
 
 	try {
-		const keywords = keyword
-			.toLowerCase()
-			.split(/\s+/)
-			.filter((k) => k.length > 0);
-
-		const searchResults = posts
-			.filter((post) => {
-				const titleLower = post.title.toLowerCase();
-				const descriptionLower = post.description.toLowerCase();
-				const contentLower = post.content.toLowerCase();
-				const linkLower = post.link.toLowerCase();
-
-				let searchText = "";
-				if (types.length === 0) {
-					searchText = `${titleLower} ${descriptionLower} ${contentLower} ${linkLower}`;
-				} else {
-					if (types.includes("title")) searchText += ` ${titleLower}`;
-					if (types.includes("description"))
-						searchText += ` ${descriptionLower}`;
-					if (types.includes("content")) searchText += ` ${contentLower}`;
-					if (types.includes("link")) searchText += ` ${linkLower}`;
-				}
-
-				return keywords.every((k) => searchText.includes(k));
-			})
-			.map((post) => {
-				const titleLower = post.title.toLowerCase();
-				const descriptionLower = post.description.toLowerCase();
-				const contentLower = post.content.toLowerCase();
-				const linkLower = post.link.toLowerCase();
-
-				let excerpt = "";
-				const firstKeyword = keywords[0];
-				const contentIndex = contentLower.indexOf(firstKeyword);
-				if (contentIndex !== -1) {
-					const start = Math.max(0, contentIndex - 50);
-					const end = Math.min(post.content.length, contentIndex + 100);
-					excerpt = post.content.substring(start, end);
-					if (start > 0) excerpt = `...${excerpt}`;
-					if (end < post.content.length) excerpt = `${excerpt}...`;
-				} else {
-					excerpt = post.description || `${post.content.substring(0, 150)}...`;
-				}
-
-				let matchCount = 0;
-				keywords.forEach((k) => {
-					const regex = new RegExp(
-						k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
-						"gi",
-					);
-
-					if (types.length === 0 || types.includes("title")) {
-						const matches = titleLower.match(regex);
-						if (matches) matchCount += matches.length;
-					}
-					if (types.length === 0 || types.includes("description")) {
-						const matches = descriptionLower.match(regex);
-						if (matches) matchCount += matches.length;
-					}
-					if (types.length === 0 || types.includes("content")) {
-						const matches = contentLower.match(regex);
-						if (matches) matchCount += matches.length;
-					}
-					if (types.length === 0 || types.includes("link")) {
-						const matches = linkLower.match(regex);
-						if (matches) matchCount += matches.length;
-					}
-				});
-
-				return {
-					url: url(`/posts/${post.link}/`),
-					meta: { title: post.title },
-					excerpt,
-					urlPath: `/posts/${post.link}`,
-					highlightQuery: keyword,
-					matchCount,
-				};
-			})
-			.sort((a, b) => b.matchCount - a.matchCount);
-
-		result = searchResults;
+		const params = new URLSearchParams({
+			q: keyword,
+			type:
+				types.length > 0 ? types.join(",") : "title,description,content,link",
+		});
+		const response = await fetch(`https://s.2x.nz/?${params}`);
+		if (!response.ok) {
+			throw new Error("Search failed");
+		}
+		result = (await response.json()) as SearchResult[];
 		setPanelVisibility(true);
 	} catch (error) {
 		console.error("Search error:", error);
@@ -274,17 +118,12 @@ const search = async (
 	}
 };
 
-onMount(() => {
-	scheduleSearchDataPreload();
-});
-
 $: {
 	if (keywordDesktop) {
 		if (searchTimer) {
 			clearTimeout(searchTimer);
 		}
 		searchTimer = setTimeout(async () => {
-			await ensurePostsLoaded();
 			await search(keywordDesktop, true, selectedTypes);
 		}, 120);
 	} else if (keywordMobile) {
@@ -292,7 +131,6 @@ $: {
 			clearTimeout(searchTimer);
 		}
 		searchTimer = setTimeout(async () => {
-			await ensurePostsLoaded();
 			await search(keywordMobile, false, selectedTypes);
 		}, 120);
 	} else {
@@ -300,7 +138,7 @@ $: {
 			clearTimeout(searchTimer);
 		}
 		result = [];
-		setPanelVisibility(false, true);
+		setPanelVisibility(false);
 	}
 }
 </script>
@@ -310,7 +148,7 @@ $: {
       bg-white/5 hover:bg-white/10 focus-within:bg-white/10
 ">
     <Icon icon="material-symbols:search" class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-white/30"></Icon>
-    <input placeholder="搜索" bind:value={keywordDesktop} on:focus={() => { void ensurePostsLoaded(); reopenPanelIfHasQuery(); }}
+    <input placeholder="搜索" bind:value={keywordDesktop} on:focus={() => { void reopenPanelIfHasQuery(); }}
            class="transition-all pl-10 text-sm bg-transparent outline-0
          h-full w-40 active:w-60 focus:w-60 text-white/50"
     >
@@ -319,7 +157,7 @@ $: {
 <!-- search bar for phone/tablet view -->
 <div class="relative flex h-11 flex-1 items-center rounded-lg bg-white/5 transition hover:bg-white/10 focus-within:bg-white/10 lg:hidden">
     <Icon icon="material-symbols:search" class="pointer-events-none absolute ml-3 text-[1.25rem] text-white/30 transition"></Icon>
-    <input placeholder="搜索" bind:value={keywordMobile} on:focus={() => { void ensurePostsLoaded(); openPanel(); }}
+    <input placeholder="搜索" bind:value={keywordMobile} on:focus={() => { void openPanel(); }}
            class="h-full w-full rounded-lg bg-transparent pl-10 pr-3 text-sm text-white/50 outline-0"
     >
 </div>
@@ -333,7 +171,7 @@ top-20 left-4 md:left-[unset] right-4 shadow-none rounded-2xl p-2">
       bg-white/5 hover:bg-white/10 focus-within:bg-white/10
   ">
         <Icon icon="material-symbols:search" class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-white/30"></Icon>
-        <input placeholder="搜索" bind:value={keywordMobile} on:focus={() => { void ensurePostsLoaded(); reopenPanelIfHasQuery(); }}
+        <input placeholder="搜索" bind:value={keywordMobile} on:focus={() => { void reopenPanelIfHasQuery(); }}
                class="pl-10 absolute inset-0 text-sm bg-transparent outline-0
                focus:w-60 text-white/50"
         >
@@ -374,19 +212,19 @@ top-20 left-4 md:left-[unset] right-4 shadow-none rounded-2xl p-2">
 
         <!-- search results -->
         {#each result as item}
-            <a href={item.url} on:click={closePanel}
+            <a href={url(`/posts/${item.link}/`)} on:click={closePanel}
                class="transition first-of-type:mt-2 lg:first-of-type:mt-0 group block
            rounded-xl text-lg px-3 py-2 hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]">
                 <div class="transition text-90 inline-flex font-bold group-hover:text-[var(--primary)]">
-                    <Highlight text={item.meta.title} query={item.highlightQuery} />
+                    {@html item.title}
                     <Icon icon="fa6-solid:chevron-right" class="transition text-[0.75rem] translate-x-1 my-auto text-[var(--primary)]"></Icon>
                 </div>
                 <div class="transition text-xs text-white/50 mb-1 font-mono">
-                    <Highlight text={item.urlPath} query={item.highlightQuery} />
-                    <span class="ml-2 text-[var(--primary)]">命中 {item.matchCount} 个关键词</span>
+                    /posts/{item.link}
+                    <span class="ml-2 text-[var(--primary)]">命中 {item.hitCount} 次</span>
                 </div>
                 <div class="transition text-sm text-50">
-                    <Highlight text={item.excerpt} query={item.highlightQuery} />
+                    {@html item.snippet}
                 </div>
             </a>
         {/each}
