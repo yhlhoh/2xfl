@@ -133,47 +133,6 @@ const isForumRoute =
 </div>
 
 <script is:inline>
-    // Code block folding logic
-    function setupCodeFolding() {
-        const codeBlocks = document.querySelectorAll('.expressive-code .frame');
-        
-        codeBlocks.forEach(block => {
-            // Check if already initialized
-            if (block.querySelector('.code-expand-btn')) return;
-
-            const pre = block.querySelector('pre');
-            if (!pre) return;
-
-            // Check height (30vh)
-            // We use clientHeight to get the viewport height
-            const threshold = window.innerHeight * 0.3;
-            
-            if (pre.scrollHeight > threshold) {
-                block.classList.add('is-collapsed');
-                
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'code-expand-btn';
-                btn.setAttribute('aria-label', '展开代码');
-                btn.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                `;
-                
-                btn.onclick = () => {
-                    block.classList.remove('is-collapsed');
-                    block.classList.add('is-expanded');
-                    btn.style.display = 'none';
-                };
-                
-                block.appendChild(btn);
-            }
-        });
-    }
-
-    // Run on load and after Swup navigation
-    document.addEventListener('DOMContentLoaded', setupCodeFolding);
-    document.addEventListener('swup:contentReplaced', setupCodeFolding);
-
     // Google Ads Anchor Ad support
     function initGoogleAnchorAdSupport() {
         const updateNavbarOffset = () => {
@@ -185,11 +144,22 @@ const isForumRoute =
             }
         };
 
+        const existingObserver = window.__googleAnchorAdSupportObserver;
+        if (existingObserver) {
+            existingObserver.disconnect();
+        }
+
         const observer = new MutationObserver(updateNavbarOffset);
         observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+        window.__googleAnchorAdSupportObserver = observer;
         updateNavbarOffset();
     }
-    document.addEventListener('DOMContentLoaded', initGoogleAnchorAdSupport);
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initGoogleAnchorAdSupport, { once: true });
+    } else {
+        initGoogleAnchorAdSupport();
+    }
     document.addEventListener('swup:contentReplaced', initGoogleAnchorAdSupport);
 </script>
 </Layout>

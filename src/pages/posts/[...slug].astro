@@ -309,11 +309,50 @@ const jsonLd = [
         // 保留此函数用于将来的其他处理，或者彻底删除
     }
 
-    // 初始化
-    setupImageLoading();
-    
-    // 支持 Swup 页面切换
-    document.addEventListener('swup:contentReplaced', setupImageLoading);
+    function setupCodeFolding() {
+        const codeBlocks = document.querySelectorAll('.expressive-code .frame');
+
+        codeBlocks.forEach((block) => {
+            if (block.querySelector('.code-expand-btn')) return;
+
+            const pre = block.querySelector('pre');
+            if (!pre) return;
+
+            const threshold = window.innerHeight * 0.3;
+            if (pre.scrollHeight <= threshold) return;
+
+            block.classList.add('is-collapsed');
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'code-expand-btn';
+            btn.setAttribute('aria-label', '展开代码');
+            btn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            `;
+
+            btn.onclick = () => {
+                block.classList.remove('is-collapsed');
+                block.classList.add('is-expanded');
+                btn.style.display = 'none';
+            };
+
+            block.appendChild(btn);
+        });
+    }
+
+    function setupPostPageEnhancements() {
+        setupImageLoading();
+        setupCodeFolding();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupPostPageEnhancements, { once: true });
+    } else {
+        setupPostPageEnhancements();
+    }
+
+    document.addEventListener('swup:contentReplaced', setupPostPageEnhancements);
 </script>
 
 <style is:global>
