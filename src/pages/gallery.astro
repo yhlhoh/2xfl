@@ -47,7 +47,7 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 		import Masonry from "masonry-layout";
 		import imagesLoaded from "imagesloaded";
 		import { Fancybox } from "@fancyapps/ui";
-		import "@fancyapps/ui/dist/fancybox/fancybox.css";
+		import { scrollLockHooks } from "@utils/fancybox";
 
 		const RANDOM_JS_URL = "https://p.2x.nz/random.js";
 		const DOMAIN = "https://p.2x.nz";
@@ -315,8 +315,7 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 		}
 
 		const fancyboxOptions = {
-			groupAll: false, // 明确禁止分组
-			// 配置项参考主站逻辑
+			groupAll: false,
 			Toolbar: {
 				display: {
 					left: ["infobar"],
@@ -335,10 +334,10 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 			Thumbs: {
 				type: "classic",
 			},
-			// 每张图片独立展示，不显示前后切换箭头
 			Carousel: {
 				Navigation: false,
 			},
+			...scrollLockHooks,
 		};
 
 		Fancybox.bind("[data-fancybox]", fancyboxOptions);

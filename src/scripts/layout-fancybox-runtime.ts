@@ -1,54 +1,24 @@
-import { Fancybox } from "@fancyapps/ui";
-import "@fancyapps/ui/dist/fancybox/fancybox.css";
+import {
+	bindFancybox,
+	cleanupFancybox,
+	restoreNativeScrollIfSafe,
+	unbindFancybox,
+} from "@utils/fancybox";
 
-const fancyboxOptions: any = {
-	wheel: "zoom",
-	clickContent: "close",
-	dblclickContent: "zoom",
-	click: "close",
-	dblclick: "zoom",
-	Panels: {
-		display: ["counter", "zoom"],
-	},
-	Images: {
-		panning: true,
-		zoom: true,
-		protect: false,
-	},
-};
+const SELECTOR = ".custom-md img, #post-cover img";
 
-Fancybox.bind(".custom-md img, #post-cover img", fancyboxOptions);
+bindFancybox(SELECTOR);
 
 const setup = () => {
-	const cleanupFancybox = () => {
-		try {
-			Fancybox.close();
-		} catch {}
-		document
-			.querySelectorAll(".fancybox__container")
-			.forEach((el) => el.remove());
-		document.documentElement.style.removeProperty("overflow");
-		document.body.style.removeProperty("overflow");
-	};
-	const restoreNativeScrollIfSafe = () => {
-		const hasFancybox = !!document.querySelector(".fancybox__container");
-		const hasCookieModal = !!document.querySelector(
-			".cc_overlay, .cc_modal, .cc_preferences, .cc_dialog, .cc_cp, .cc_nb, .cc_banner",
-		);
-		if (hasFancybox || hasCookieModal) return;
-		document.documentElement.style.removeProperty("overflow");
-		document.body.style.removeProperty("overflow");
-	};
-
 	window.swup.hooks.on("page:view", () => {
-		Fancybox.bind(".custom-md img, #post-cover img", fancyboxOptions);
+		bindFancybox(SELECTOR);
 	});
 
 	window.swup.hooks.on(
 		"content:replace",
 		() => {
 			cleanupFancybox();
-			Fancybox.unbind(".custom-md img, #post-cover img");
+			unbindFancybox(SELECTOR);
 		},
 		{ before: true },
 	);
