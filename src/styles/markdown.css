@@ -1,4 +1,8 @@
 .custom-md {
+    p:not(:has(img)) {
+        margin-top: -0.75rem !important;
+    }
+
     &.forum-comment-md {
         @apply text-sm leading-7;
 
