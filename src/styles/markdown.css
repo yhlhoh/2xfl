@@ -2,8 +2,12 @@
     &.forum-comment-md {
         @apply text-sm leading-7;
 
-        p, ul, ol, blockquote, pre, table {
+        ul, ol, blockquote, pre, table {
             @apply my-2;
+        }
+
+        p {
+            @apply my-2 -mt-3;
         }
 
         h1, h2, h3, h4, h5, h6 {
