@@ -222,8 +222,12 @@ top-20 left-4 md:left-[unset] right-4 shadow-none rounded-2xl p-2">
         <!-- search loading -->
         {#if showLoading}
             <div class="flex items-center justify-center py-6">
-                <div class="w-5 h-5 border-2 border-white/20 border-t-[var(--primary)] rounded-full animate-spin"></div>
-                <span class="ml-2 text-sm text-white/50">搜索中...</span>
+                <span class="text-sm text-white/50">搜索中</span>
+                <span class="loading-dots ml-1">
+                    <span class="dot">.</span>
+                    <span class="dot">.</span>
+                    <span class="dot">.</span>
+                </span>
             </div>
         {/if}
 
@@ -287,5 +291,39 @@ top-20 left-4 md:left-[unset] right-4 shadow-none rounded-2xl p-2">
   .search-panel :global(mark) {
     color: var(--primary);
     background: none;
+  }
+
+  .loading-dots {
+    display: inline-flex;
+    gap: 2px;
+  }
+
+  .loading-dots .dot {
+    animation: dot-blink 1.4s infinite;
+    opacity: 0.2;
+  }
+
+  .loading-dots .dot:nth-child(1) {
+    animation-delay: 0s;
+  }
+
+  .loading-dots .dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .loading-dots .dot:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes dot-blink {
+    0%, 20% {
+      opacity: 0.2;
+    }
+    40% {
+      opacity: 1;
+    }
+    60%, 100% {
+      opacity: 0.2;
+    }
   }
 </style>
