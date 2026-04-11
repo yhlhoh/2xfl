@@ -199,13 +199,13 @@ const bannerOffset =
 		<style define:vars={{
 			configHue,
 			'page-width': `${PAGE_WIDTH}rem`,
-			'bg-src': siteConfig.background.src || '',
-			'bg-enable': siteConfig.background.enable ? '1' : '0',
-			'bg-position': siteConfig.background.position || 'center',
-			'bg-size': siteConfig.background.size || 'cover',
-			'bg-repeat': siteConfig.background.repeat || 'no-repeat',
-			'bg-attachment': siteConfig.background.attachment || 'fixed',
-			'bg-opacity': (siteConfig.background.opacity || 0.3).toString()
+			'bg-src': '',
+			'bg-enable': '0',
+			'bg-position': 'center',
+			'bg-size': 'cover',
+			'bg-repeat': 'no-repeat',
+			'bg-attachment': 'fixed',
+			'bg-opacity': '0'
 		}}>
 			:root {
 				--bg-src: var(--bg-src);
