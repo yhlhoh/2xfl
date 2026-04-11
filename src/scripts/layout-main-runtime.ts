@@ -252,9 +252,11 @@ const setup = async () => {
 
 		if (isCurrentForum || isTargetForum) {
 			// 场景2：涉及论坛的切换 - sidebar 和主容器同步动画
+			// 关键：将 #swup-sidebar 添加到容器列表中
 			visit.containers = ["#swup-sidebar", "#sort-container", "#swup-container", "#swup-footer", "#toc"];
 		} else {
 			// 场景3：非论坛页面之间的切换 - 只有主容器动画，sidebar 不动
+			// 关键：不包含 #swup-sidebar，使用默认容器列表
 			visit.containers = ["#sort-container", "#swup-container", "#swup-footer", "#toc"];
 		}
 	});
