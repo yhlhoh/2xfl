@@ -164,6 +164,6 @@ const isForumRoute =
     } else {
         initGoogleAnchorAdSupport();
     }
-    document.addEventListener('swup:contentReplaced', initGoogleAnchorAdSupport);
+    document.addEventListener('astro:page-load', initGoogleAnchorAdSupport);
 </script>
 </Layout>

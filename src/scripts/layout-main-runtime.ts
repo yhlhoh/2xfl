@@ -16,10 +16,6 @@ import {
 	setTheme,
 } from "../utils/setting-utils";
 import { url, pathsEqual } from "../utils/url-utils";
-import {
-	monitorSwupInitialization,
-	setupLinkInterceptor,
-} from "./swup-link-intercept";
 
 const bannerEnabled = !!document.getElementById("banner-wrapper");
 
@@ -197,177 +193,7 @@ function init() {
 
 init();
 bindPostInlineDiff();
-setupLinkInterceptor();
 
-const setup = async () => {
-	if (!window.swup) {
-		return;
-	}
-
-	// 定义排序页面路径
-	const SORT_PATHS = ["/", "/date-asc/", "/date-desc/", "/alpha-asc/", "/alpha-desc/"];
-	
-	const isSortPath = (pathname: string): boolean => {
-		const clean = pathname.replace(/\/+$/, "") || "/";
-		return SORT_PATHS.some((p) => {
-			const cleanP = p.replace(/\/+$/, "") || "/";
-			return clean === cleanP || clean.startsWith(cleanP + "/");
-		});
-	};
-
-	// link:click hook - 处理点击时的准备工作
-	window.swup.hooks.on("link:click", (visit: { el?: HTMLElement }) => {
-		document.documentElement.style.setProperty("--content-delay", "0ms");
-
-		if (!bannerEnabled) return;
-		
-		const threshold = window.innerHeight * (BANNER_HEIGHT / 100) - 72 - 16;
-		const navbar = document.getElementById("navbar-wrapper");
-		if (!navbar || !document.body.classList.contains("lg:is-home")) return;
-		
-		if (document.body.scrollTop >= threshold || document.documentElement.scrollTop >= threshold) {
-			navbar.classList.add("navbar-hidden");
-		}
-	});
-
-	// visit:start hook - 核心逻辑：动态控制哪些容器参与动画
-	window.swup.hooks.on("visit:start", (visit: { to: { url: string }; containers?: string[] }) => {
-		const bodyElement = document.querySelector("body");
-		const currentPath = window.location.pathname;
-		const targetPath = new URL(visit.to.url, window.location.origin).pathname;
-
-		console.log('=== VISIT START ===');
-		console.log('From:', currentPath, 'To:', targetPath);
-
-		// 更新 body 的 is-home 类
-		if (pathsEqual(visit.to.url, url("/"))) {
-			bodyElement!.classList.add("lg:is-home");
-		} else {
-			bodyElement!.classList.remove("lg:is-home");
-		}
-
-		// 显示高度扩展元素
-		const heightExtend = document.getElementById("page-height-extend");
-		if (heightExtend) {
-			heightExtend.classList.remove("hidden");
-		}
-
-		// TOC 准备状态
-		const toc = document.getElementById("toc-wrapper");
-		if (toc) {
-			toc.classList.add("toc-not-ready");
-		}
-
-		// 场景1：排序页面之间的切换 - 只刷新文章列表
-		if (isSortPath(currentPath) && isSortPath(targetPath)) {
-			visit.containers = ["#swup-container"];
-			const sortContainer = document.getElementById("sort-container");
-			if (sortContainer) {
-				sortContainer.classList.add("sort-keep");
-			}
-			console.log('Scenario: Sort navigation');
-			return;
-		}
-
-		// 清理 sort-keep 类
-		const sortContainer = document.getElementById("sort-container");
-		if (sortContainer) {
-			sortContainer.classList.remove("sort-keep");
-		}
-
-		// 场景2和3：判断是否涉及论坛
-		const isCurrentForum = isForumPath(currentPath);
-		const isTargetForum = isForumPath(targetPath);
-		const sidebarElement = document.getElementById("swup-sidebar");
-
-		console.log('isCurrentForum:', isCurrentForum, 'isTargetForum:', isTargetForum);
-
-		if (isCurrentForum || isTargetForum) {
-			// 场景2：涉及论坛的切换 - sidebar 和主容器同步动画
-			// 关键：替换 sidebar 的内容，而不是整个 sidebar 容器
-			visit.containers = ["#sidebar-content", "#sort-container", "#swup-container", "#swup-footer", "#toc"];
-			// 外层容器添加动画类
-			if (sidebarElement) {
-				sidebarElement.classList.add("transition-swup-fade");
-				console.log('Added transition-swup-fade to sidebar wrapper');
-			}
-		} else {
-			// 场景3：非论坛页面之间的切换 - 只有主容器动画，sidebar 不动
-			visit.containers = ["#sort-container", "#swup-container", "#swup-footer", "#toc"];
-			// 移除动画类
-			if (sidebarElement) {
-				sidebarElement.classList.remove("transition-swup-fade");
-				console.log('Removed transition-swup-fade from sidebar wrapper');
-			}
-		}
-		
-		console.log('Containers:', visit.containers);
-	});
-
-	// page:view hook - 页面视图更新后的处理
-	window.swup.hooks.on("page:view", () => {
-		console.log('=== PAGE VIEW ===');
-		console.log('Current path:', window.location.pathname);
-		
-		const heightExtend = document.getElementById("page-height-extend");
-		if (heightExtend) {
-			heightExtend.classList.remove("hidden");
-		}
-		
-		// 不在这里移除动画类，让动画完成
-		// 动画类的移除在 visit:end 中处理
-		
-		scrollFunction();
-		loadGiscus();
-		syncSidebarProfileMode();
-		loadProfileStats();
-	});
-
-	// visit:end hook - 访问结束后的清理工作
-	window.swup.hooks.on("visit:end", () => {
-		console.log('=== VISIT END ===');
-		
-		setTimeout(() => {
-			const heightExtend = document.getElementById("page-height-extend");
-			if (heightExtend) {
-				heightExtend.classList.add("hidden");
-			}
-
-			const toc = document.getElementById("toc-wrapper");
-			if (toc) {
-				toc.classList.remove("toc-not-ready");
-			}
-
-			const sortContainer = document.getElementById("sort-container");
-			if (sortContainer) {
-				sortContainer.classList.remove("sort-keep");
-			}
-			
-			// 在动画完成后，根据当前路径决定是否保留 sidebar 的动画类
-			const currentPath = window.location.pathname;
-			const isCurrentForum = isForumPath(currentPath);
-			const sidebarElement = document.getElementById("swup-sidebar");
-			
-			console.log('visit:end - Cleaning up sidebar class, isForumRoute:', isCurrentForum);
-			
-			if (!isCurrentForum && sidebarElement) {
-				// 非论坛页面：移除动画类
-				sidebarElement.classList.remove("transition-swup-fade");
-				console.log('Removed transition-swup-fade after animation complete');
-			}
-		}, 200);
-	});
-};
-
-// Try to setup immediately if Swup is already ready
-if (window?.swup?.hooks) {
-	setup();
-}
-
-// Also listen for swup:enable event in case Swup initializes later
-document.addEventListener("swup:enable", () => {
-	setup();
-});
 
 let backToTopBtn = document.getElementById("back-to-top-btn");
 let goToCommentsBtn = document.getElementById("go-to-comments-btn");
@@ -469,3 +295,4 @@ window.onresize = () => {
 		`${offset}px`,
 	);
 };
+
