@@ -187,25 +187,6 @@ export default defineConfig({
 		tailwind({
 			nesting: true,
 		}),
-		swup({
-			theme: false,
-			animationClass: "transition-swup-",
-			containers: [
-				"#sort-container",
-				"#swup-container",
-				"#toc",
-				"#swup-footer",
-				"#sidebar-content",
-			],
-			smoothScrolling: true,
-			cache: false,
-			preload: false,
-			accessibility: true,
-			updateHead: true,
-			updateBodyClass: false,
-			globalInstance: true,
-			init: false,
-		}),
 		icon({
 			iconDir: "public/icons",
 		}),
