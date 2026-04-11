@@ -2,7 +2,7 @@ export function formatDateToYYYYMMDD(date: Date): string {
 	return date.toISOString().substring(0, 10);
 }
 
-export function formatPostDateForDisplay(date: Date): string {
+export function formatPostDateForDisplay(date: Date, showTime = true): string {
 	const isDateOnly =
 		date.getUTCHours() === 0 &&
 		date.getUTCMinutes() === 0 &&
@@ -21,8 +21,11 @@ export function formatPostDateForDisplay(date: Date): string {
 	const m = dateParts.find((p) => p.type === "month")?.value ?? "";
 	const d = dateParts.find((p) => p.type === "day")?.value ?? "";
 
-	const datePart = `${y}年${m}月${d}日`;
-	if (isDateOnly) return datePart;
+	// 获取当前年份
+	const currentYear = new Date().getFullYear().toString();
+	// 如果是今年，只显示月日，否则显示完整日期
+	const datePart = y === currentYear ? `${m}月${d}日` : `${y}年${m}月${d}日`;
+	if (isDateOnly || !showTime) return datePart;
 
 	const timeParts = new Intl.DateTimeFormat("zh-CN", {
 		timeZone,
