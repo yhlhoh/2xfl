@@ -211,8 +211,7 @@ const setup = async () => {
 		return;
 	}
 
-	await monitorSwupInitialization();
-	console.log('[setup] Swup initialized, registering hooks...');
+	console.log('[setup] Swup found, registering hooks...');
 
 	window.swup.hooks.on("link:click", (visit: { el?: HTMLElement }) => {
 		document.documentElement.style.setProperty("--content-delay", "0ms");
@@ -301,13 +300,18 @@ const setup = async () => {
 	});
 	console.log('[setup] All hooks registered successfully');
 };
+
+// Try to setup immediately if Swup is already ready
 if (window?.swup?.hooks) {
 	console.log('[layout-main-runtime] Swup already initialized, calling setup immediately');
-	await setup();
-} else {
-	console.log('[layout-main-runtime] Swup not ready, waiting for swup:enable event');
-	document.addEventListener("swup:enable", setup);
+	setup().catch(err => console.error('[layout-main-runtime] Setup failed:', err));
 }
+
+// Also listen for swup:enable event in case Swup initializes later
+document.addEventListener("swup:enable", () => {
+	console.log('[layout-main-runtime] swup:enable event received, calling setup');
+	setup().catch(err => console.error('[layout-main-runtime] Setup failed:', err));
+});
 
 let backToTopBtn = document.getElementById("back-to-top-btn");
 let goToCommentsBtn = document.getElementById("go-to-comments-btn");
