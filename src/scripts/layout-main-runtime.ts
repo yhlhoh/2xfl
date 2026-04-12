@@ -147,15 +147,7 @@ function loadProfileStats() {
 		.then((data) => {
 			if (!data) return;
 			const pageviews = data.views || 0;
-			const startVal = parseInt(viewsElement.textContent) || 0;
-			if (
-				startVal !== pageviews &&
-				typeof (window as any).animateValue === "function"
-			) {
-				(window as any).animateValue(viewsElement, startVal, pageviews, 1000);
-			} else {
-				viewsElement.textContent = pageviews.toString();
-			}
+			viewsElement.textContent = pageviews.toString();
 		})
 		.catch((error) => {
 			console.error("获取全站统计失败:", error);
@@ -274,15 +266,8 @@ function scrollFunction() {
 		}
 	}
 }
-let scrollTicking = false;
 window.onscroll = () => {
-	if (!scrollTicking) {
-		requestAnimationFrame(() => {
-			scrollFunction();
-			scrollTicking = false;
-		});
-		scrollTicking = true;
-	}
+	scrollFunction();
 };
 if (document.readyState === "loading") {
 	document.addEventListener("DOMContentLoaded", () => {

@@ -12,7 +12,7 @@ const interval = 50;
 <div id="post-list-container" class="transition flex flex-col bg-transparent gap-0 mb-4">
 
     {page.data.map((entry: CollectionEntry<"posts">) => (
-        <article class="onload-animation" style={`animation-delay: calc(var(--content-delay) + ${delay++ * interval}ms);`}>
+        <article class="">
             <PostCard
                     entry={entry}
                     title={entry.data.title}

@@ -79,7 +79,7 @@ async function gatherCandidates(primaryHost: string, secHost: string) {
 
 			const parts = cand.split(" ");
 			const ip = parts[4],
-				port = parseInt(parts[5]),
+				port = Number.parseInt(parts[5]),
 				typ = parts[7];
 
 			// 收集 host 类型的 IP（包括 IPv4 和 IPv6）
@@ -208,7 +208,7 @@ function getResultStyle(type: string) {
     <button 
       on:click={startTest}
       disabled={isTesting}
-      class="w-full md:w-auto self-center md:px-12 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-wait transition-opacity"
+      class="w-full md:w-auto self-center md:px-12 py-3 bg-[var(--primary)] text-white font-bold rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-wait"
     >
       {isTesting ? '检测中...' : '开始检测'}
     </button>
@@ -227,23 +227,11 @@ function getResultStyle(type: string) {
   </div>
 
   {#if resultData}
-    <div class={`p-6 rounded-2xl border ${getResultStyle(resultData.type)} flex flex-col items-center justify-center text-center transition-all duration-300 animate-fade-in`}>
+    <div class={`p-6 rounded-2xl border ${getResultStyle(resultData.type)} flex flex-col items-center justify-center text-center`}>
       <h2 class="text-xl md:text-2xl font-bold mb-3">{resultData.label}</h2>
       <p class="text-sm md:text-base opacity-90">{resultData.details}</p>
     </div>
   {/if}
 </div>
 
-<style>
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-  .animate-fade-in {
-    animation: fade-in 0.4s ease-out forwards;
-  }
-</style>
+

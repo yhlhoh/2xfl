@@ -73,7 +73,7 @@ const isForumRoute =
         >
             <!-- Banner image credit -->
             {hasBannerCredit && <a href={siteConfig.banner.credit.url} id="banner-credit" target="_blank" rel="noopener" aria-label="Visit image source"
-                                   class:list={["group onload-animation transition-all absolute flex justify-center items-center rounded-full " +
+                                   class:list={["group absolute flex justify-center items-center rounded-full " +
                                    "px-3 right-4 -top-[3.25rem] bg-black/60 hover:bg-black/70 h-9", {"hover:pr-9 active:bg-black/80": hasBannerLink}]}
             >
                 <Icon class="text-white/75 text-[1.25rem] mr-1" name="material-symbols:copyright-outline-rounded" ></Icon>
@@ -97,16 +97,16 @@ const isForumRoute =
                     <!-- make id different from windows.swup global property -->
                     <Announcement></Announcement>
 
-                    <div id="sort-container" class="transition-swup-fade">
+                    <div id="sort-container">
                         <slot name="before-content" />
                     </div>
-                    <div id="swup-container" class="transition-swup-fade">
+                    <div id="swup-container">
                         <slot></slot>
                     </div>
                 </div>
             </main>
 
-            <div id="swup-footer" class="footer col-span-1 row-start-3 lg:col-span-1 lg:col-start-2 lg:row-start-2 md:col-span-1 md:col-start-2 md:row-start-2 transition-swup-fade">
+            <div id="swup-footer" class="footer col-span-1 row-start-3 lg:col-span-1 lg:col-start-2 lg:row-start-2 md:col-span-1 md:col-start-2 md:row-start-2">
                 <Footer></Footer>
             </div>
         </div>
@@ -123,7 +123,7 @@ const isForumRoute =
             {"toc-hide": siteConfig.banner.enable}]}
         >
             <div id="toc-inner-wrapper" class="fixed top-14 w-[var(--toc-width)] h-[calc(100vh_-_20rem)] overflow-y-scroll overflow-x-hidden">
-                <div id="toc" class="w-full h-full transition-swup-fade ">
+                <div id="toc" class="w-full h-full ">
                     <div class="h-8 w-full"></div>
                     <TOC headings={headings}></TOC>
                     <div class="h-8 w-full"></div>

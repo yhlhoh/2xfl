@@ -39,7 +39,7 @@ function goToUser(userId?: string, event?: MouseEvent | KeyboardEvent) {
 <div class="space-y-4">
 	{#if loading}
 		{#each Array(3) as _, i}
-			<div class="card-base p-5 animate-pulse">
+			<div class="card-base p-5">
 				<div class="mb-4 flex items-start justify-between gap-4">
 					<div class="min-w-0 flex-1">
 						<div class="mb-3 flex items-center gap-2">
@@ -70,8 +70,7 @@ function goToUser(userId?: string, event?: MouseEvent | KeyboardEvent) {
 	{:else}
 		{#each safePosts as post, i}
 			<div 
-				class="group card-base card-hover block w-full cursor-pointer p-5 text-white/90 no-underline transition-opacity duration-200" 
-				style="animation: fade-in 200ms {i * 50}ms forwards;"
+				class="group card-base card-hover block w-full cursor-pointer p-5 text-white/90 no-underline" 
 				role="link" 
 				tabindex="0" 
 				on:click={() => goToPost(post.id)} 
@@ -86,7 +85,7 @@ function goToUser(userId?: string, event?: MouseEvent | KeyboardEvent) {
 									<span>置顶</span>
 								</span>
 							{/if}
-							<h2 class="text-lg font-bold text-white transition group-hover:text-[var(--primary)]">{post.title}</h2>
+							<h2 class="text-lg font-bold text-white group-hover:text-[var(--primary)]">{post.title}</h2>
 						</div>
 						{#if post.excerpt}
 							<p class="line-clamp-2 text-sm text-white/55">{post.excerpt}</p>
@@ -103,14 +102,14 @@ function goToUser(userId?: string, event?: MouseEvent | KeyboardEvent) {
 						<img
 							src={post.coverImageUrl}
 							alt={`${post.title} 封面`}
-							class="h-48 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+							class="h-48 w-full object-cover group-hover:scale-[1.02]"
 							loading="lazy"
 						/>
 					</div>
 				{/if}
 				<div class="mb-4 flex items-center gap-3 text-sm text-white/65">
 					{#if post.authorId}
-						<button class="flex items-center gap-3 rounded-xl text-left transition hover:text-[var(--primary)]" type="button" on:click={(event) => goToUser(post.authorId, event)}>
+						<button class="flex items-center gap-3 rounded-xl text-left hover:text-[var(--primary)]" type="button" on:click={(event) => goToUser(post.authorId, event)}>
 							{#if post.author?.avatarUrl}
 								<img src={post.author.avatarUrl} alt={post.author.displayName || post.author.username || "用户头像"} class="h-9 w-9 rounded-full object-cover" loading="lazy" referrerpolicy="no-referrer" />
 							{:else}
@@ -147,13 +146,4 @@ function goToUser(userId?: string, event?: MouseEvent | KeyboardEvent) {
 	{/if}
 </div>
 
-<style>
-@keyframes fade-in {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
-}
-</style>
+

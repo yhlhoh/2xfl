@@ -162,12 +162,8 @@ class TableOfContents extends HTMLElement {
     };
 
     update = () => {
-        requestAnimationFrame(() => {
-            this.toggleActiveHeading();
-            // requestAnimationFrame(() => {
-            this.scrollToActiveHeading();
-            // });
-        });
+        this.toggleActiveHeading();
+        this.scrollToActiveHeading();
     };
 
     fallback = () => {
@@ -211,15 +207,7 @@ class TableOfContents extends HTMLElement {
     };
 
     connectedCallback() {
-        // wait for the onload animation to finish, which makes the `getBoundingClientRect` return correct values
-        const element = document.querySelector('.prose');
-        if (element) {
-            element.addEventListener('animationend', () => {
-                this.init();
-            }, { once: true });
-        } else {
-            console.debug('Animation element not found');
-        }
+        this.init();
     };
 
     init() {

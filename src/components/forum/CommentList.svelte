@@ -80,7 +80,7 @@ $: commentTree = buildCommentTree(comments);
 	{#if loading}
 		<div class="space-y-3">
 			{#each Array(3) as _, i}
-				<div class="card-base border border-white/10 p-4 animate-pulse" style="animation-delay: {i * 100}ms;">
+				<div class="card-base border border-white/10 p-4">
 					<div class="mb-3 flex items-center gap-3">
 						<div class="h-10 w-10 rounded-full bg-white/8"></div>
 						<div class="flex-1">
@@ -120,7 +120,7 @@ $: commentTree = buildCommentTree(comments);
 			</div>
 			<div class="space-y-3">
 				{#each commentTree as comment, i (comment.id)}
-				<div style="animation: fade-in 200ms {i * 50}ms forwards; opacity: 0;">
+				<div>
 					<CommentItem
 						{comment}
 						{activeReplyParentId}
@@ -161,13 +161,4 @@ $: commentTree = buildCommentTree(comments);
 	{/if}
 </div>
 
-<style>
-@keyframes fade-in {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
-}
-</style>
+

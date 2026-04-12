@@ -140,8 +140,6 @@ const bannerOffset =
 		<!-- <script src="/js/umami-share.js" defer></script> -->
 		<script data-swup-ignore-script src={`https://p.${siteConfig.customDomain}/random.js`} defer></script>
 
-<script src="../scripts/animate-value.js"></script>
-
 <script define:vars={{ customDomain: siteConfig.customDomain }}>
 		(function () {
 		var hostname = location.hostname;
@@ -239,18 +237,13 @@ const bannerOffset =
 			background-size: var(--bg-size);
 			background-repeat: var(--bg-repeat);
 			background-attachment: var(--bg-attachment);
-			opacity: 0;
+			opacity: calc(var(--bg-opacity) * var(--bg-enable));
 			pointer-events: none;
 			z-index: -1;
-			transition: opacity 0.3s ease-in-out, filter 0.5s ease-out, background-size 0.3s ease-out;
                 /* Prevent background jump on mobile browsers with dynamic URL bars */
                 will-change: transform;
                 transform: translateZ(0);
 		}
-			
-			#bg-box.loaded {
-				opacity: calc(var(--bg-opacity) * var(--bg-enable));
-			}
 		</style>
 
 		<!-- KaTeX CSS: async load to avoid blocking render -->
@@ -265,7 +258,7 @@ const bannerOffset =
 
 
 	</head>
-	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}>
+	<body class=" min-h-screen " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}>
 
 
 
@@ -275,23 +268,11 @@ const bannerOffset =
 		<noscript>
 			<style>
 				#bg-box {
-					opacity: 1 !important;
+					opacity: calc(var(--bg-opacity) * var(--bg-enable)) !important;
 				}
 			</style>
 		</noscript>
 		<div id="bg-box"></div>
-		<script is:inline>
-			// Load background image
-			(function() {
-				const bgBox = document.getElementById('bg-box');
-				if (bgBox) {
-					// Add loaded class to trigger opacity transition
-					setTimeout(() => {
-						bgBox.classList.add('loaded');
-					}, 100);
-				}
-			})();
-		</script>
 		<ConfigCarrier></ConfigCarrier>
 		<GlobalToaster client:only="svelte" />
         {showNewPostNotification && <NewPostNotification></NewPostNotification>}

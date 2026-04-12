@@ -95,15 +95,15 @@ const jsonLd = [
             {}
         ]}>
             <!-- word count and reading time -->
-            <div class="flex flex-row text-white/30 gap-5 mb-3 transition onload-animation">
+            <div class="flex flex-row text-white/30 gap-5 mb-3">
                 <div class="flex flex-row items-center">
-                    <div class="transition h-6 w-6 rounded-md bg-white/10 text-white/50 flex items-center justify-center mr-2">
+                    <div class="h-6 w-6 rounded-md bg-white/10 text-white/50 flex items-center justify-center mr-2">
                         <Icon name="material-symbols:notes-rounded"></Icon>
                     </div>
                     <div class="text-sm">{remarkPluginFrontmatter.words} 字</div>
                 </div>
                 <div class="flex flex-row items-center">
-                    <div class="transition h-6 w-6 rounded-md bg-white/10 text-white/50 flex items-center justify-center mr-2">
+                    <div class="h-6 w-6 rounded-md bg-white/10 text-white/50 flex items-center justify-center mr-2">
                         <Icon name="material-symbols:schedule-outline-rounded"></Icon>
                     </div>
                     <div class="text-sm">{remarkPluginFrontmatter.minutes} 分钟</div>
@@ -111,10 +111,10 @@ const jsonLd = [
             </div>
 
             <!-- title -->
-            <div class="relative onload-animation">                <div
+            <div class="relative">                <div
                     id="post-title"
                     data-pagefind-body data-pagefind-weight="10" data-pagefind-meta="title"
-                    class="transition w-full flex items-center font-bold mb-3
+                    class="w-full flex items-center font-bold mb-3
                     text-3xl md:text-[2.25rem]/[2.75rem]
                     text-white/90
                     md:before:w-1 before:h-5 before:rounded-md before:bg-[var(--primary)]
@@ -127,7 +127,7 @@ const jsonLd = [
 
             <!-- description/excerpt -->
             {(entry.data.description || remarkPluginFrontmatter.excerpt) && (
-                <div class="onload-animation mb-4">
+                <div class="mb-4">
                     <div id="post-description" class="text-white/75 text-sm leading-relaxed">
                         {entry.data.description || remarkPluginFrontmatter.excerpt}
                     </div>
@@ -136,13 +136,13 @@ const jsonLd = [
 
             <!-- AI involvement -->
             {entry.data.ai_level && (
-                <div class="onload-animation">
+                <div>
                     <AIInvolvementCard level={entry.data.ai_level} />
                 </div>
             )}
 
             <!-- metadata -->
-            <div class="onload-animation">
+            <div>
                 <PostMetadata
                         class="mb-5"
                         published={entry.data.published}
@@ -156,7 +156,7 @@ const jsonLd = [
             <!-- always show cover as long as it has one -->
 
             {entry.data.image &&
-                <ImageWrapper id="post-cover" src={entry.data.image} basePath={path.join("content/posts/", getDir(entry.id))} class="mb-8 banner-container onload-animation"/>
+                <ImageWrapper id="post-cover" src={entry.data.image} basePath={path.join("content/posts/", getDir(entry.id))} class="mb-8 banner-container"/>
             }
 
 
@@ -165,12 +165,12 @@ const jsonLd = [
 
 			<PostUpdateNotice publishedAt={entry.data.published} lastUpdated={lastUpdateTime} />
 
-            <Markdown class="mb-6 markdown-content onload-animation">
+            <Markdown class="mb-6 markdown-content">
                 <Content />
             </Markdown>
 
             <!-- 文章反馈与编辑区域 -->
-            <div class="mb-4 p-4 bg-[var(--license-block-bg)] border-t border-b border-[var(--line-divider)] onload-animation">
+            <div class="mb-4 p-4 bg-[var(--license-block-bg)] border-t border-b border-[var(--line-divider)]">
                 <!-- 反馈区域 -->
                 <div class="flex items-center justify-between mb-4">
                     <div class="flex items-center gap-3">
@@ -249,7 +249,7 @@ const jsonLd = [
                 )}
             </div>
 
-            {licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
+            {licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} class="mb-6 rounded-xl license-container"></License>}
             
 
             
@@ -295,10 +295,6 @@ const jsonLd = [
 
 <style>
     .post-container :global(img) {
-        opacity: 0;
-        transition: opacity 0.5s ease-out;
-    }
-    .post-container :global(img.loaded) {
         opacity: 1;
     }
 </style>
