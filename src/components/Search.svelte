@@ -186,7 +186,7 @@ function searchPosts(
 		}
 	}
 
-	return results.sort((a, b) => {
+	return [...results].sort((a, b) => {
 		if (sortAsc) {
 			return new Date(a.published) < new Date(b.published) ? -1 : 1;
 		}
