@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "posts/self-host-cdn.md",
+                "file": "posts/cf-fastip.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "self-host-cdn"
+              "title": "cf-fastip"
             }
           }
         ]
@@ -171,6 +171,7 @@
   },
   "active": "f6b5e7abc96521b9",
   "lastOpenFiles": [
+    "posts/self-host-cdn.md",
     "assets/images/scdn.png",
     "assets/images/self-host-cdn-4.png",
     "assets/images/self-host-cdn-3.png",
@@ -186,7 +187,6 @@
     "assets/images/what-the-fuck-claw-replit-9.png",
     "assets/images/what-the-fuck-claw-replit-8.png",
     "assets/images/what-the-fuck-claw-replit-7.png",
-    "assets/images/what-the-fuck-claw-replit-6.png",
     "posts/check-nat-webrtc.md",
     "posts/onedrive-index.md",
     "posts/ms-e3.md",
