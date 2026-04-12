@@ -9,6 +9,7 @@ interface SearchResult {
 	score: number;
 	hitCount: number;
 	snippet: string;
+	published: string;
 }
 
 interface PostData {
@@ -16,11 +17,13 @@ interface PostData {
 	description: string;
 	content: string;
 	link: string;
+	published: string;
 }
 
 let keyword = "";
 let result: SearchResult[] = [];
 let isSearching = false;
+let sortAsc = false;
 let isComposingDesktop = false;
 let isComposingMobile = false;
 
@@ -178,11 +181,17 @@ function searchPosts(
 				snippet:
 					matchedSnippet ||
 					highlightKeyword(post.description.slice(0, 100), keyword),
+				published: post.published || "",
 			});
 		}
 	}
 
-	return results.sort((a, b) => b.score - a.score);
+	return results.sort((a, b) => {
+		if (sortAsc) {
+			return new Date(a.published) < new Date(b.published) ? -1 : 1;
+		}
+		return new Date(a.published) > new Date(b.published) ? -1 : 1;
+	});
 }
 
 // Fetch and search
@@ -285,8 +294,16 @@ top-20 left-4 md:left-[unset] right-4 shadow-none rounded-2xl p-2">
     {#if keyword}
         <!-- search results header -->
         {#if result.length > 0}
-            <div class="text-xs text-white/40 px-3 py-2 border-b border-white/5">
-                {result.length} 条搜索结果
+            <div class="flex items-center justify-between text-xs text-white/40 px-3 py-2 border-b border-white/5">
+                <span>{result.length} 条搜索结果</span>
+                <button
+                    class="px-2 py-1 rounded-md transition-all bg-white/5 text-white/50 hover:bg-white/10 flex items-center gap-1"
+                    on:click={() => { sortAsc = !sortAsc; }}
+                    title={sortAsc ? "按最新排序" : "按最旧排序"}
+                >
+                    <Icon icon={sortAsc ? "material-symbols:arrow-upward" : "material-symbols:arrow-downward"} class="text-sm" />
+                    {sortAsc ? "最旧优先" : "最新优先"}
+                </button>
             </div>
         {/if}
 

@@ -20,6 +20,7 @@ export async function GET(_context: APIContext): Promise<Response> {
 		description: post.data.description || "",
 		content: toPlainText(post.body || ""),
 		link: post.slug,
+		published: post.data.published || "",
 	}));
 
 	return new Response(JSON.stringify(payload), {
