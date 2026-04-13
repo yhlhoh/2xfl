@@ -2,6 +2,11 @@
 
 <script>
 	import * as Diff from "diff";
+	import {
+		normalizeGuid,
+		getRelativePath,
+		normalizePathname,
+	} from "@utils/diff-utils";
 
 	const DEBUG_PARAM_KEY = "__diff_debug";
 	const DEBUG_STATE_KEY = "fuwari-diff-debug-state";
@@ -11,34 +16,6 @@
 	const NEW_DB_NAME = "fuwari-diff-debug-new";
 	const DB_VERSION = 1;
 	const STORE_NAME = "posts";
-
-	function normalizePathname(pathname) {
-		const p = String(pathname || "");
-		if (!p) return "/";
-		const noQueryHash = p.split("#")[0].split("?")[0];
-		if (noQueryHash.length > 1) return noQueryHash.replace(/\/+$/, "");
-		return "/";
-	}
-
-	function getRelativePath(absoluteUrl) {
-		try {
-			const url = new URL(absoluteUrl, window.location.origin);
-			return `${url.pathname}${url.search}${url.hash}`;
-		} catch {
-			return String(absoluteUrl || "");
-		}
-	}
-
-	function normalizeGuid(guid, link) {
-		const value = (guid || link || "").trim();
-		if (!value) return "";
-		try {
-			const url = new URL(value, window.location.origin);
-			return `${url.pathname}${url.search}${url.hash}`;
-		} catch {
-			return value;
-		}
-	}
 
 	function normalizeRaw(text) {
 		const s = String(text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
