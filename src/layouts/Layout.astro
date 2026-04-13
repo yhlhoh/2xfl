@@ -12,6 +12,7 @@ import "../styles/markdown-extend.styl";
 import "../styles/display-settings.css";
 
 import { profileConfig, siteConfig } from "@/config";
+import AnimatedBackground from "@components/AnimatedBackground.astro";
 import ConfigCarrier from "@components/ConfigCarrier.astro";
 import GlobalToaster from "@components/GlobalToaster.svelte";
 import BodyThirdPartyScripts from "@components/layout/BodyThirdPartyScripts.astro";
@@ -271,6 +272,7 @@ const bannerOffset =
 				}
 			</style>
 		</noscript>
+		<AnimatedBackground />
 		<div id="bg-box"></div>
 		<script>
 			(function() {
