@@ -1,7 +1,5 @@
 ---
 enable: false
-level: happy
+level: tip
 ---
-你好，课表，有事请在没课的时候找我
-
-![](../assets/images/Screenshot_2026-03-01-18-37-20-12_cb331b166d50c46.jpg)
+我们诚邀您填写网站调研问卷，感谢您抽出宝贵时间作答： https://wj.qq.com/s2/26315232/649a/
