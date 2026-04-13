@@ -27,7 +27,9 @@ const isLocal = !(
 	src.startsWith("/") ||
 	src.startsWith("http") ||
 	src.startsWith("https") ||
-	src.startsWith("data:")
+	src.startsWith("data:") ||
+	src === "random" ||
+	src.includes("random")
 );
 const isPublic = src.startsWith("/");
 
