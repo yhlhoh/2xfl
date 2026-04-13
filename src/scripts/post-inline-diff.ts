@@ -735,9 +735,6 @@ export function initPostInlineDiff(): void {
 }
 
 export function bindPostInlineDiff(): void {
-	const w = window as any;
-	if (w.__fuwariPostInlineDiffBound) return;
-	w.__fuwariPostInlineDiffBound = true;
 	document.addEventListener("DOMContentLoaded", initPostInlineDiff);
 	window.addEventListener("fuwari:diff-debug-updated", initPostInlineDiff);
 	if (document.readyState !== "loading") initPostInlineDiff();

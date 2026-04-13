@@ -163,11 +163,7 @@ const payloadText = encodeURIComponent(
 
 	function setupLiveStatusWidgets() {
 		refreshLiveStatusWidgets();
-
-		if (!window.__liveStatusWidgetsBound) {
-			window.__liveStatusWidgetsBound = true;
-			window.addEventListener("focus", refreshLiveStatusWidgets);
-		}
+		window.addEventListener("focus", refreshLiveStatusWidgets);
 
 		const timerKey = "__liveStatusWidgetsTimer";
 		if (window[timerKey]) {
