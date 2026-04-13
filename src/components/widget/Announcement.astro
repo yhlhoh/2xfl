@@ -43,7 +43,7 @@ const currentColor = colorMap[level] || colorMap.info;
 {enable && (
     <div class="notice-card mb-4 relative hover:shadow-lg">
         <div
-			class="notice-content flex items-start p-4 rounded-xl bg-[var(--card-bg)] border transition-colors"
+			class="notice-content flex items-center p-4 rounded-xl bg-[var(--card-bg)] border transition-colors"
 			class:list={[{ "notice-happy": isHappy }]}
 			style={isHappy ? {} : { borderColor: currentColor, color: currentColor }}
 		>
