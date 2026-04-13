@@ -44,6 +44,15 @@
     .float-panel-closed {
         @apply -translate-y-1 opacity-0 pointer-events-none
     }
+    details > summary {
+        list-style: none;
+    }
+    details > summary::-webkit-details-marker {
+        display: none;
+    }
+    details[open] > .float-panel {
+        @apply translate-y-0 opacity-100 pointer-events-auto
+    }
     .search-panel mark {
         @apply bg-transparent text-[var(--primary)]
     }
