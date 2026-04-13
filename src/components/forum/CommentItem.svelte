@@ -32,13 +32,6 @@ function navigateTo(url: string) {
 	if (typeof window === "undefined") {
 		return;
 	}
-	const swup = (
-		window as Window & { swup?: { navigate: (targetUrl: string) => void } }
-	).swup;
-	if (swup) {
-		swup.navigate(url);
-		return;
-	}
 	window.location.href = url;
 }
 

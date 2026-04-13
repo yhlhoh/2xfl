@@ -49,10 +49,6 @@ async function restoreCurrentUser() {
 	}
 }
 
-function handleSwupContentReplaced() {
-	void restoreCurrentUser();
-}
-
 onMount(() => {
 	// 只在论坛路由下才发起用户信息请求
 	const currentPath = window.location.pathname;
@@ -65,13 +61,8 @@ onMount(() => {
 		hasToken = Boolean(state.token || forumAuth.getToken());
 		resolveUser(state.user);
 	});
-	document.addEventListener("swup:contentReplaced", handleSwupContentReplaced);
 	void restoreCurrentUser();
 	return () => {
-		document.removeEventListener(
-			"swup:contentReplaced",
-			handleSwupContentReplaced,
-		);
 		unsubscribe();
 	};
 });

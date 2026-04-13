@@ -26,7 +26,6 @@
 - **样式**：Tailwind CSS + Stylus
 - **内容处理**：Remark / Rehype 扩展链路
 - **代码高亮**：Expressive Code
-- **页面过渡**：Swup
 - **包管理**：pnpm
 - **代码规范**：Biome
 
