@@ -367,16 +367,19 @@ const jsonLd = [
 
     /* 文章 Diff 高亮样式 */
     .post-inline-diff-add-target {
-        text-decoration-line: underline;
-        text-decoration-thickness: 2px;
-        text-underline-offset: 0.18em;
-        text-decoration-color: rgb(134 239 172 / 1);
+        background-color: rgba(134, 239, 172, 0.15);
+        border-left: 3px solid rgb(134 239 172 / 1);
+        padding: 0.25rem 0.5rem;
+        margin: 0.25rem 0;
+        display: inline-block;
+        border-radius: 0.25rem;
     }
 
     .post-inline-diff-add-target-img {
         outline: 2px solid rgb(134 239 172 / 1);
         outline-offset: 2px;
         border-radius: 0.5rem;
+        background-color: rgba(134, 239, 172, 0.1);
     }
 
     .post-inline-diff-del-line {
@@ -386,18 +389,21 @@ const jsonLd = [
 
     .post-inline-diff-del-line del {
         text-decoration-thickness: 2px;
+        color: rgb(252 165 165 / 1);
     }
 
     .post-inline-diff-add-line {
         margin: 0.5rem 0;
-        color: rgb(134 239 172 / 1);
+        background-color: rgba(134, 239, 172, 0.15);
+        border-left: 3px solid rgb(134 239 172 / 1);
+        padding: 0.5rem;
+        border-radius: 0.25rem;
     }
 
     .post-inline-diff-add-line .post-inline-diff-add-content {
         display: inline-block;
         vertical-align: top;
-        text-decoration-line: underline;
-        text-decoration-thickness: 2px;
+        color: rgb(134 239 172 / 1);
     }
 
     .post-inline-diff-add-line img,
@@ -420,11 +426,26 @@ const jsonLd = [
         opacity: 0.8;
     }
 
+    /* 删除的内容 - 强制所有子元素都显示红色 */
     .post-inline-diff-del-target {
         color: rgb(252 165 165 / 1) !important;
         text-decoration-line: line-through;
         text-decoration-thickness: 2px;
         text-decoration-color: rgb(252 165 165 / 1);
+    }
+
+    /* 删除内容中的超链接也强制显示红色 */
+    .post-inline-diff-del-target a,
+    .post-inline-diff-del-target a:hover,
+    .post-inline-diff-del-target a:visited {
+        color: rgb(252 165 165 / 1) !important;
+        text-decoration-line: line-through;
+        text-decoration-color: rgb(252 165 165 / 1);
+    }
+
+    /* 删除内容中的所有子元素都强制红色 */
+    .post-inline-diff-del-target * {
+        color: rgb(252 165 165 / 1) !important;
     }
 
     h1.post-inline-diff-del-target,
@@ -435,6 +456,16 @@ const jsonLd = [
     h6.post-inline-diff-del-target {
         color: rgb(252 165 165 / 1) !important;
         text-decoration-color: rgb(252 165 165 / 1);
+    }
+
+    /* 标题中的超链接也强制红色 */
+    h1.post-inline-diff-del-target a,
+    h2.post-inline-diff-del-target a,
+    h3.post-inline-diff-del-target a,
+    h4.post-inline-diff-del-target a,
+    h5.post-inline-diff-del-target a,
+    h6.post-inline-diff-del-target a {
+        color: rgb(252 165 165 / 1) !important;
     }
 
     .post-inline-diff-del-target-img {
