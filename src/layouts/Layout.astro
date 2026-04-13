@@ -277,7 +277,8 @@ const bannerOffset =
 				const bgBox = document.getElementById("bg-box");
 				if (!bgBox) return;
 				const counts = { h: 1176, v: 4711 };
-				const type = Math.random() > 0.3 ? "h" : "v";
+				const isWide = window.innerWidth >= 768;
+				const type = isWide ? "h" : "v";
 				const max = counts[type];
 				const n = Math.floor(Math.random() * max) + 1;
 				bgBox.style.backgroundImage = `url(https://p.2x.nz/ri/${type}/${n}.webp)`;
