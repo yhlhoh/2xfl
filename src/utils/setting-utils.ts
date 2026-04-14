@@ -1,5 +1,3 @@
-import { DARK_MODE } from "@constants/constants.ts";
-
 export function getDefaultHue(): number {
 	const fallback = "250";
 	const configCarrier = document.getElementById("config-carrier");
@@ -35,28 +33,6 @@ export function setBgBlur(blur: number): void {
 	}
 }
 
-export function setBgHueRotate(hue: number): void {
-	const bgBox = document.getElementById("bg-box");
-	if (bgBox) {
-		// Retrieve existing blur value
-		const blur = getBgBlur();
-		bgBox.style.setProperty(
-			"filter",
-			`blur(${blur / 16}rem) hue-rotate(${hue}deg)`,
-		);
-	}
-}
-
-export function getBgHueRotate(): number {
-	const bgBox = document.getElementById("bg-box");
-	if (bgBox) {
-		const currentFilter = bgBox.style.filter || "";
-		const hueRotateMatch = currentFilter.match(/hue-rotate\((.*?)deg\)/);
-		return hueRotateMatch ? Number.parseInt(hueRotateMatch[1]) : 0;
-	}
-	return 0;
-}
-
 export function getHideBg(): boolean {
 	const stored = localStorage.getItem("hide-bg");
 	return stored === "true";
@@ -86,14 +62,4 @@ export function getDevServer(): string {
 
 export function setDevServer(server: string): void {
 	localStorage.setItem("dev-server", server);
-}
-
-export function applyThemeToDocument(): void {
-	document.documentElement.classList.add("dark");
-	document.documentElement.setAttribute("data-theme", "github-dark");
-}
-
-export function setTheme(): void {
-	localStorage.setItem("theme", DARK_MODE);
-	applyThemeToDocument();
 }
