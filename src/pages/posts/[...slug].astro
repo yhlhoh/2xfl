@@ -250,21 +250,37 @@ const jsonLd = [
             
             <!-- Giscus 评论区 -->
             <div id="giscus-container" class="giscus"></div>
-            <script src="https://giscus.app/client.js"
-                data-repo="afoim/giscus-fuwari"
-                data-repo-id="R_kgDOOi8quw"
-                data-category="Announcements"
-                data-category-id="DIC_kwDOOi8qu84CprDV"
-                data-mapping="pathname"
-                data-strict="1"
-                data-reactions-enabled="1"
-                data-emit-metadata="0"
-                data-input-position="top"
-                data-theme="https://2x.nz/css/giscus.css"
-                data-lang="zh-CN"
-                data-loading="lazy"
-                crossorigin="anonymous"
-                async>
+            <script is:inline>
+                function loadGiscus() {
+                    const container = document.getElementById('giscus-container');
+                    if (!container) return;
+                    
+                    // 清除旧的 Giscus
+                    container.innerHTML = '';
+                    
+                    // 创建新的 script 标签
+                    const script = document.createElement('script');
+                    script.src = 'https://giscus.app/client.js';
+                    script.setAttribute('data-repo', 'afoim/giscus-fuwari');
+                    script.setAttribute('data-repo-id', 'R_kgDOOi8quw');
+                    script.setAttribute('data-category', 'Announcements');
+                    script.setAttribute('data-category-id', 'DIC_kwDOOi8qu84CprDV');
+                    script.setAttribute('data-mapping', 'pathname');
+                    script.setAttribute('data-strict', '1');
+                    script.setAttribute('data-reactions-enabled', '1');
+                    script.setAttribute('data-emit-metadata', '0');
+                    script.setAttribute('data-input-position', 'top');
+                    script.setAttribute('data-theme', 'https://2x.nz/css/giscus.css');
+                    script.setAttribute('data-lang', 'zh-CN');
+                    script.setAttribute('data-loading', 'lazy');
+                    script.setAttribute('crossorigin', 'anonymous');
+                    script.async = true;
+                    
+                    container.appendChild(script);
+                }
+                
+                // 页面加载和每次导航后重新加载 Giscus
+                document.addEventListener('astro:page-load', loadGiscus);
             </script>
     <br>
 
@@ -325,12 +341,12 @@ const jsonLd = [
             `;
 
             btn.onclick = () => {
-                block.classList.remove('is-collapsed');
-                block.classList.add('is-expanded');
+                pre.classList.remove('is-collapsed');
+                pre.classList.add('is-expanded');
                 btn.style.display = 'none';
             };
 
-            block.appendChild(btn);
+            pre.appendChild(btn);
         });
     }
 
@@ -340,7 +356,7 @@ const jsonLd = [
     }
 
     // 随机封面图替换
-    (function() {
+    function setupRandomCovers() {
         const covers = document.querySelectorAll('.post-cover-random');
         if (!covers.length) return;
         const max = 1176;
@@ -348,13 +364,13 @@ const jsonLd = [
             const n = Math.floor(Math.random() * max) + 1;
             img.src = `https://p.2x.nz/ri/h/${n}.webp`;
         }
-    })();
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupPostPageEnhancements, { once: true });
-    } else {
-        setupPostPageEnhancements();
     }
+
+    // 在页面加载和每次导航后执行
+    document.addEventListener('astro:page-load', () => {
+        setupPostPageEnhancements();
+        setupRandomCovers();
+    });
 </script>
 
 <style is:global>

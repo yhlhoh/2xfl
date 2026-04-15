@@ -127,8 +127,13 @@ function init() {
 	});
 }
 
-init();
-bindPostInlineDiff();
+// 初始加载和每次页面切换后都执行
+document.addEventListener("astro:page-load", () => {
+	init();
+	bindPostInlineDiff();
+	scrollFunction();
+	syncSidebarProfileMode();
+});
 
 let backToTopBtn = document.getElementById("back-to-top-btn");
 let goToCommentsBtn = document.getElementById("go-to-comments-btn");

@@ -14,6 +14,7 @@ import BodyThirdPartyScripts from "@components/layout/BodyThirdPartyScripts.astr
 import DashLoaderScript from "@components/layout/DashLoaderScript.astro";
 import LiquidGlassFilter from "@components/layout/LiquidGlassFilter.astro";
 import NewPostNotification from "@components/widget/NewPostNotification.astro";
+import { ClientRouter } from "astro:transitions";
 import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_EXTEND,
@@ -192,6 +193,8 @@ const bannerOffset =
 		<!-- KaTeX CSS: async load to avoid blocking render -->
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" media="print" onload="this.media='all'" />
 		<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" /></noscript>
+
+		<ClientRouter />
 
 		<slot name="head"></slot>
 
