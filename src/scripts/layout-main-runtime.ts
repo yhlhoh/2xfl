@@ -66,7 +66,7 @@ function syncSidebarProfileMode() {
 	const timetable = document.getElementById("sidebar-timetable");
 	const deepwiki = document.getElementById("sidebar-deepwiki");
 
-	if (!sidebar || !blogProfile || !forumProfile) return;
+	if (!sidebar) return;
 
 	const forumBasePath =
 		sidebar.getAttribute("data-forum-base-path") || "/forum/";
@@ -81,8 +81,14 @@ function syncSidebarProfileMode() {
 		normalizedCurrentPath === normalizedForumBasePath ||
 		normalizedCurrentPath.startsWith(normalizedForumBasePath);
 
-	blogProfile.classList.toggle("hidden", isForumRoute);
-	forumProfile.classList.toggle("hidden", !isForumRoute);
+	// 控制整个 sidebar 的显示/隐藏
+	sidebar.classList.toggle("hidden", isForumRoute);
+
+	// 如果有博客/论坛 profile 切换，也保留原有逻辑
+	if (blogProfile && forumProfile) {
+		blogProfile.classList.toggle("hidden", isForumRoute);
+		forumProfile.classList.toggle("hidden", !isForumRoute);
+	}
 	timetable?.classList.toggle("hidden", isForumRoute);
 	deepwiki?.classList.toggle("hidden", isForumRoute);
 }
