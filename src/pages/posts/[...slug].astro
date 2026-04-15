@@ -11,6 +11,7 @@ import { getSortedPosts } from "@utils/content-utils";
 import { getCommitUrl, getPostHistory } from "@utils/git-history";
 import { getDir, getPostUrlBySlug } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
+import { render } from "astro:content";
 import { gitHubEditConfig, licenseConfig } from "src/config";
 import PostMetadata from "../../components/PostMeta.astro";
 import ImageWrapper from "../../components/misc/ImageWrapper.astro";
@@ -29,9 +30,7 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { Content, headings } = await entry.render();
-
-const { remarkPluginFrontmatter } = await entry.render();
+const { Content, headings, remarkPluginFrontmatter } = await render(entry);
 
 const history = getPostHistory(entry.id);
 const lastUpdateTime =

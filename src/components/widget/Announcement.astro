@@ -1,5 +1,5 @@
 ---
-import { getEntry } from "astro:content";
+import { getEntry, render } from "astro:content";
 
 const announcement = await getEntry("spec", "announcement");
 let enable = false;
@@ -9,7 +9,7 @@ let Content = null;
 if (announcement) {
 	enable = announcement.data.enable;
 	level = announcement.data.level;
-	const rendered = await announcement.render();
+	const rendered = await render(announcement);
 	Content = rendered.Content;
 }
 
