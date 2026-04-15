@@ -11,12 +11,14 @@ const tools = Object.entries(toolPagesModules)
 		if (!module.toolMeta) return null;
 		const meta = module.toolMeta;
 		// 从文件路径提取路由路径
-		const filePath = path.split('/pages/')[1]?.replace('.astro', '') || '';
-		const routePath = filePath.replace(/\/index$/, '');
+		// path 格式: ./tools/cover.astro 或 ./tools/s/index.astro
+		const fileName = path.replace('./tools/', '').replace('.astro', '');
+		// 如果是 index.astro，使用目录名；否则使用文件名
+		const routePath = fileName === 'index' ? '' : fileName.replace(/\/index$/, '');
 		return {
 			title: meta.title,
 			desc: meta.description,
-			href: `/${routePath}/`,
+			href: `/tools/${routePath}`,
 			icon: meta.icon,
 			isCustom: meta.isCustomIcon,
 			order: meta.order || 999,
