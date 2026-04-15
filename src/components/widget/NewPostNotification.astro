@@ -386,9 +386,7 @@ import { Icon } from "astro-icon/components";
              dot?.classList.remove('scale-0');
              // Auto-open panel only on first detection (isFresh)
              if (isFresh) {
-                 setTimeout(() => {
-                     openPanel();
-                 }, 1500);
+                 openPanel();
              }
         } else {
              dot?.classList.add('scale-0');
@@ -457,10 +455,10 @@ import { Icon } from "astro-icon/components";
             if (prevTimer) {
                 clearTimeout(Number(prevTimer));
             }
-            const timer = window.setTimeout(() => {
+            panel.addEventListener('transitionend', () => {
                 panel.classList.add('is-open-content');
                 panel.removeAttribute('data-open-timer');
-            }, 360);
+            }, { once: true });
             panel.setAttribute('data-open-timer', String(timer));
         }
 

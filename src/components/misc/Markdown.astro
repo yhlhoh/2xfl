@@ -125,10 +125,10 @@ document.addEventListener("click", function (e: MouseEvent) {
 
       target.classList.add("success");
 
-      // 设置新的timeout并保存ID到按钮的自定义属性中
-        const newTimeoutId = setTimeout(() => {
+      // 使用 transitionend 事件替代 setTimeout
+        target.addEventListener('transitionend', () => {
             target.classList.remove("success");
-        }, 1000);
+        }, { once: true });
         target.setAttribute("data-timeout-id", newTimeoutId.toString());
     }
 

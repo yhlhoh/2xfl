@@ -47,9 +47,7 @@ async function submit() {
 			totpCode: totpCode.trim() || undefined,
 		});
 		emitSuccessToast("重置密码", "密码已重置，正在前往登录页...", true);
-		window.setTimeout(() => {
-			window.location.href = "/forum/auth/login/";
-		}, 1200);
+		window.location.href = "/forum/auth/login/";
 	} catch (error) {
 		if (error instanceof ForumApiError && error.message === "TOTP_REQUIRED") {
 			emitErrorToast(

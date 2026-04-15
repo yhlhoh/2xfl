@@ -175,9 +175,7 @@ async function loadSession() {
 		applyUser(null);
 	} finally {
 		loading = false;
-		setTimeout(() => {
-			contentVisible = true;
-		}, 50);
+		contentVisible = true;
 	}
 }
 

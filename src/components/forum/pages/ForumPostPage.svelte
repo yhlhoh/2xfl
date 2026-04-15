@@ -200,9 +200,7 @@ async function loadPost() {
 		}
 	} finally {
 		loading = false;
-		setTimeout(() => {
-			contentVisible = true;
-		}, 50);
+		contentVisible = true;
 	}
 }
 
@@ -379,13 +377,11 @@ async function handleDeletePost() {
 	try {
 		await deleteAdminPost(post.id);
 		emitSuccessToast("帖子管理", "帖子已删除，正在返回论坛首页...", true);
-		await new Promise((resolve) => window.setTimeout(resolve, 180));
 		navigateTo("/forum/");
 	} catch (error) {
 		if (error instanceof ForumApiError) {
 			if (error.status === 404) {
 				emitErrorToast("帖子管理", "帖子不存在或已被删除。");
-				await new Promise((resolve) => window.setTimeout(resolve, 180));
 				navigateTo("/forum/");
 				return;
 			}

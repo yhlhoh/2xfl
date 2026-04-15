@@ -178,9 +178,7 @@ async function refreshData(showLoading = false) {
 	} finally {
 		loading = false;
 		refreshing = false;
-		setTimeout(() => {
-			contentVisible = true;
-		}, 50);
+		contentVisible = true;
 	}
 }
 

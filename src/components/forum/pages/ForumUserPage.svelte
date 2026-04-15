@@ -114,9 +114,7 @@ async function loadPage() {
 	} finally {
 		loading = false;
 		postsLoading = false;
-		setTimeout(() => {
-			contentVisible = true;
-		}, 50);
+		contentVisible = true;
 	}
 }
 

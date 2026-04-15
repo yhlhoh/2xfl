@@ -107,7 +107,7 @@
 			runCookieConsent();
 			return;
 		}
-		setTimeout(ensureCookieConsentRun, 150);
+		requestAnimationFrame(ensureCookieConsentRun);
 	};
 
 	document.addEventListener("DOMContentLoaded", () => {
@@ -150,7 +150,7 @@
 	if ("requestIdleCallback" in window) {
 		window.requestIdleCallback(load, { timeout: 4000 });
 	} else {
-		setTimeout(load, 1500);
+		requestAnimationFrame(load);
 	}
 })();
 </script>
@@ -194,7 +194,7 @@
 		(function signalGooglefcPresent() {
 			if (window.frames["googlefcPresent"]) return;
 			if (!document.body) {
-				setTimeout(signalGooglefcPresent, 0);
+				requestAnimationFrame(signalGooglefcPresent);
 				return;
 			}
 			const iframe = document.createElement("iframe");
@@ -209,7 +209,7 @@
 			window.requestIdleCallback(run, { timeout: 4000 });
 			return;
 		}
-		setTimeout(run, 1200);
+		requestAnimationFrame(run);
 	};
 	if (document.readyState === "complete") {
 		schedule();

@@ -131,7 +131,7 @@
                 if (parent) {
                     parent.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     parent.classList.add('animate-pulse'); // Tailwind pulse
-                    setTimeout(() => parent.classList.remove('animate-pulse'), 2000);
+                    parent.addEventListener('animationend', () => parent.classList.remove('animate-pulse'), { once: true });
                 }
                 
                 return;

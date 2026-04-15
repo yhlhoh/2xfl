@@ -10,9 +10,7 @@ let logsContainer: HTMLElement;
 
 function scrollToBottom() {
 	if (logsContainer) {
-		setTimeout(() => {
-			logsContainer.scrollTop = logsContainer.scrollHeight;
-		}, 0);
+		logsContainer.scrollTop = logsContainer.scrollHeight;
 	}
 }
 
@@ -135,8 +133,27 @@ async function gatherCandidates(primaryHost: string, secHost: string) {
 			})
 			.catch(reject);
 
-		// Wait max 3.5 seconds
-		setTimeout(complete, 3500);
+		// Wait max 3.5 seconds using Promise
+		Promise.race([
+			new Promise(resolve => {
+				pc.addEventListener('iceconnectionstatechange', () => {
+					if (pc.iceConnectionState === 'completed' || pc.iceConnectionState === 'failed') {
+						resolve(null);
+					}
+				});
+			}),
+			new Promise(resolve => {
+				const start = Date.now();
+				const check = () => {
+					if (Date.now() - start >= 3500) {
+						resolve(null);
+					} else {
+						requestAnimationFrame(check);
+					}
+				};
+				check();
+			})
+		]).then(complete);
 	});
 }
 

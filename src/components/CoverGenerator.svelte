@@ -475,9 +475,16 @@ function onSearchInput(e: Event) {
 
 	clearTimeout(searchDebounce);
 	if (val.trim()) {
-		searchDebounce = setTimeout(() => {
-			handleSearch();
-		}, 500);
+		// 使用 requestIdleCallback 替代 setTimeout 进行防抖
+		if ('requestIdleCallback' in window) {
+			searchDebounce = requestIdleCallback(() => {
+				handleSearch();
+			}, { timeout: 500 });
+		} else {
+			searchDebounce = setTimeout(() => {
+				handleSearch();
+			}, 500);
+		}
 	} else {
 		searchResults = [];
 	}

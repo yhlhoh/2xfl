@@ -259,8 +259,7 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 						if (sentinelEl) {
 							const rect = sentinelEl.getBoundingClientRect();
 							if (rect.top < window.innerHeight + 600) {
-								// 用 setTimeout 避免堆栈过深，并允许 UI 刷新
-								setTimeout(() => loadMore(batch), 50);
+								loadMore(batch);
 							}
 						}
 					}
